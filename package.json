@@ -11,7 +11,7 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
-    "next": "15.1.6",
+    "next": "15.1.11",
     "mysql2": "^3.11.0",
     "jsonwebtoken": "^9.0.2",
     "react": "^18.3.1",
