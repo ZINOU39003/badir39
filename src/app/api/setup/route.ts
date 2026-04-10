@@ -10,6 +10,7 @@ export async function GET() {
         full_name VARCHAR(255) NOT NULL,
         phone VARCHAR(20) UNIQUE NOT NULL,
         username VARCHAR(50) UNIQUE,
+        email VARCHAR(100) UNIQUE,
         password VARCHAR(255) NOT NULL,
         role ENUM('citizen', 'department', 'admin') DEFAULT 'citizen',
         organization VARCHAR(100),

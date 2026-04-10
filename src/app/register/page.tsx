@@ -31,6 +31,15 @@ export default function RegisterPage() {
     }
     setBusy(true);
     setError("");
+
+    // Algerian Phone Validation
+    const algerianPhoneRegex = /^0[567][0-9]{8}$/;
+    if (!algerianPhoneRegex.test(form.phone.trim())) {
+      setError("يرجى إدخال رقم هاتف جزائري صحيح (10 أرقام تبدأ بـ 05، 06، أو 07).");
+      setBusy(false);
+      return;
+    }
+
     try {
       await register({
         phone: form.phone.trim(),
@@ -107,7 +116,7 @@ export default function RegisterPage() {
                   type="text"
                   value={form.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="05xxxxxxxx"
+                  placeholder="05 / 06 / 07 xxxxxxxx"
                   className="w-full h-12 pr-4 pl-12 rounded-xl border border-border bg-surface text-foreground font-semibold text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   dir="ltr"
                 />
