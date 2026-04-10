@@ -101,7 +101,7 @@ export async function createComplaint(payload: {
     lat: payload.lat,
     lng: payload.lng,
     category: payload.category,
-    reporter_id: payload.reporter_id,
+    reporter_id: Number(payload.reporter_id || 0),
     assigned_dept: payload.assigned_dept,
     media_urls: payload.media_urls || [],
   };
@@ -119,7 +119,6 @@ export async function createComplaint(payload: {
 
   return {
     ...body,
-    location: payload.location_text,
     status: "submitted",
     created_at: new Date().toISOString(),
     messages: [],
