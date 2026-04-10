@@ -19,7 +19,15 @@ export async function POST(req: Request) {
     await pool.execute(
       `INSERT INTO users (full_name, username, phone, password, role, organization, logo_uri, cover_uri)
        VALUES (?, ?, ?, ?, 'department', ?, ?, ?)`,
-      [full_name, username, phone, password, organization, logo_uri, cover_uri]
+      [
+        full_name, 
+        username, 
+        phone, 
+        password, 
+        organization || null, 
+        logo_uri || null, 
+        cover_uri || null
+      ]
     );
 
     return NextResponse.json({ success: true, message: "Department created" });
