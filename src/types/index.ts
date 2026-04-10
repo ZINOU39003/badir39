@@ -38,7 +38,9 @@ export type TimelineStep = {
 
 export type Complaint = {
   id: string;
-  citizen_id?: string;
+  reporter_id?: string;
+  lat?: number;
+  lng?: number;
   reporter_name?: string;
   reporter_phone?: string;
   reporter_email?: string;
@@ -46,7 +48,6 @@ export type Complaint = {
   description: string;
   category: string;
   location: string;
-  coordinates?: { lat: number; lng: number };
   assigned_dept: string;
   status: ComplaintStatus;
   created_at: string;

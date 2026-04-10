@@ -3,8 +3,8 @@
 import { useAuth } from "@/lib/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { getAdminComplaints, getMyComplaints, getComplaintMessages, sendMessage } from "@/lib/api";
-import { Complaint, Message, ComplaintStatus } from "@/types";
+import { getAdminComplaints, getMyComplaints, getComplaintMessages, sendMessage, updateComplaintStatus, getUserById } from "@/lib/api";
+import { Complaint, Message, ComplaintStatus, AuthUser } from "@/types";
 import { cn, formatDate, getStatusLabel, getStatusColor } from "@/lib/utils";
 import {
   ArrowRight,
@@ -40,6 +40,9 @@ export default function ComplaintDetailPage() {
   const [newMsg, setNewMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [sendingMsg, setSendingMsg] = useState(false);
+  
+  const [reporter, setReporter] = useState<AuthUser | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const loadComplaint = useCallback(async () => {
     if (!user) return;
@@ -54,6 +57,12 @@ export default function ComplaintDetailPage() {
       if (found) {
         const msgs = await getComplaintMessages(found.id);
         setMessages(msgs);
+
+        // Fetch reporter info if admin/dept
+        if ((user.role === "admin" || user.role === "department") && found.reporter_id) {
+          const reporterInfo = await getUserById(found.reporter_id);
+          setReporter(reporterInfo);
+        }
       }
     } catch {
     } finally {
@@ -89,6 +98,30 @@ export default function ComplaintDetailPage() {
     } finally {
       setSendingMsg(false);
     }
+  };
+
+  const handleStatusUpdate = async (newStatus: ComplaintStatus) => {
+    if (!complaint || updatingStatus) return;
+    setUpdatingStatus(true);
+    try {
+      await updateComplaintStatus(complaint.id, newStatus);
+      // Update local state
+      setComplaint(prev => prev ? { ...prev, status: newStatus } : null);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const openInMaps = () => {
+    if (!complaint?.lat || !complaint?.lng) {
+      // Fallback if no coords, use location text
+      const query = encodeURIComponent(complaint?.location || "الجزائر");
+      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+      return;
+    }
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${complaint.lat},${complaint.lng}`, "_blank");
   };
 
   if (loading) {
@@ -141,6 +174,15 @@ export default function ComplaintDetailPage() {
            <span className={cn("px-4 py-1.5 rounded-full text-xs font-black border shadow-sm", getStatusColor(complaint.status))}>
             {getStatusLabel(complaint.status)}
            </span>
+           {(user?.role === "admin" || user?.role === "department") && (
+             <button
+               onClick={openInMaps}
+               className="flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-black hover:bg-slate-800 transition-all shadow-md group"
+             >
+               <MapPin size={12} className="text-primary group-hover:scale-125 transition-transform" />
+               فتح الخرائط (GPS)
+             </button>
+           )}
         </div>
       </div>
 
@@ -159,6 +201,34 @@ export default function ComplaintDetailPage() {
               <InfoItem icon={MapPin} label="الموقع" value={complaint.location || "الجزائر العاصمة"} />
               <InfoItem icon={ShieldCheck} label="الدرجة" value={complaint.category || "عام"} />
             </div>
+
+            {/* Admin Controls */}
+            {(user?.role === "admin" || user?.role === "department") && (
+              <div className="mt-8 pt-6 border-t border-border/50">
+                <h3 className="text-sm font-black mb-4 flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-primary" />
+                  إجراءات المصلحة الإدارية
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {STATUS_FLOW.map((s) => (
+                    <button
+                      key={s.value}
+                      disabled={updatingStatus || complaint.status === s.value}
+                      onClick={() => handleStatusUpdate(s.value)}
+                      className={cn(
+                        "px-4 py-2 rounded-xl text-[10px] font-black transition-all border shadow-sm flex items-center gap-2",
+                        complaint.status === s.value
+                          ? "bg-primary/10 border-primary text-primary opacity-50 cursor-default"
+                          : "bg-surface border-border hover:border-primary/50 text-foreground active:scale-95"
+                      )}
+                    >
+                      {updatingStatus && complaint.status !== s.value && <Loader2 size={10} className="animate-spin" />}
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-surface rounded-2xl border border-border p-8 shadow-sm">
@@ -206,6 +276,30 @@ export default function ComplaintDetailPage() {
               })}
             </div>
           </div>
+
+          {/* Reporter Profile (Admin Only) */}
+          {(user?.role === "admin" || user?.role === "department") && reporter && (
+            <div className="bg-surface rounded-2xl border border-border p-6 shadow-sm border-r-4 border-r-primary">
+              <h2 className="font-black text-sm mb-4 flex items-center gap-2">
+                <User size={18} className="text-primary" />
+                معلومات المواطن المبلغ
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">الاسم الكامل</p>
+                  <p className="text-sm font-black">{reporter.full_name}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">رقم الهاتف</p>
+                  <p className="text-sm font-black" dir="ltr">{reporter.phone}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">البريد الإلكتروني</p>
+                  <p className="text-sm font-black">{reporter.email || "غير متوفر"}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Chat Interface */}

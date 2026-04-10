@@ -46,6 +46,17 @@ export async function registerRequest(payload: {
   return data as AuthResponse;
 }
 
+export async function getUserById(userId: string): Promise<AuthUser | null> {
+  try {
+    const res = await fetch(`${API_BASE}/users/${userId}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data as AuthUser;
+  } catch {
+    return null;
+  }
+}
+
 // --- Complaints ---
 
 export async function getMyComplaints(userId: string): Promise<Complaint[]> {
@@ -114,6 +125,15 @@ export async function createComplaint(payload: {
     messages: [],
     history: [],
   } as Complaint;
+}
+
+export async function updateComplaintStatus(id: string, status: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/complaints/${encodeURIComponent(id)}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error("Failed to update status");
 }
 
 export async function getComplaintMessages(complaintId: string): Promise<Message[]> {
