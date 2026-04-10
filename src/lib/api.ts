@@ -70,9 +70,16 @@ export async function getMyComplaints(userId: string): Promise<Complaint[]> {
   }
 }
 
-export async function getAdminComplaints(): Promise<Complaint[]> {
+export async function getAdminComplaints(filters?: { daira?: string; baladiya?: string }): Promise<Complaint[]> {
   try {
-    const res = await fetch(`${API_BASE}/complaints`);
+    let url = `${API_BASE}/complaints`;
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.daira) params.append("daira", filters.daira);
+      if (filters.baladiya) params.append("baladiya", filters.baladiya);
+      url += `?${params.toString()}`;
+    }
+    const res = await fetch(url);
     if (!res.ok) throw new Error("API error");
     const json = await res.json();
     return (json?.data?.items ?? []) as Complaint[];

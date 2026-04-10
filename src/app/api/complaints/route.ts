@@ -5,14 +5,28 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const reporter_id = searchParams.get('reporter_id');
+    const daira = searchParams.get('daira');
+    const baladiya = searchParams.get('baladiya');
 
-    let query = 'SELECT * FROM complaints ORDER BY created_at DESC';
+    let query = 'SELECT * FROM complaints WHERE 1=1';
     let params: any[] = [];
 
     if (reporter_id) {
-      query = 'SELECT * FROM complaints WHERE reporter_id = ? ORDER BY created_at DESC';
-      params = [reporter_id];
+      query += ' AND reporter_id = ?';
+      params.push(reporter_id);
     }
+    
+    if (daira) {
+      query += ' AND district = ?';
+      params.push(daira);
+    }
+
+    if (baladiya) {
+      query += ' AND municipality = ?';
+      params.push(baladiya);
+    }
+
+    query += ' ORDER BY created_at DESC';
 
     const [rows]: any = await pool.execute(query, params);
 
@@ -28,12 +42,20 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { id, title, description, location_text, lat, lng, category, reporter_id, assigned_dept, media_urls = [] } = body;
+    const { 
+      id, title, description, location_text, lat, lng, 
+      category, reporter_id, assigned_dept, media_urls = [],
+      district, municipality 
+    } = body;
 
     await pool.execute(
-      `INSERT INTO complaints (id, title, description, location_text, lat, lng, category, reporter_id, assigned_dept, media_urls)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, description, location_text, lat, lng, category, reporter_id, assigned_dept, JSON.stringify(media_urls)]
+      `INSERT INTO complaints (id, title, description, location_text, lat, lng, category, reporter_id, assigned_dept, media_urls, district, municipality)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id, title, description, location_text, lat, lng, 
+        category, reporter_id, assigned_dept, JSON.stringify(media_urls),
+        district, municipality
+      ]
     );
 
     return NextResponse.json({ success: true, message: "Complaint created successfully" });

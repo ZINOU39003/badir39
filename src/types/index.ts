@@ -8,6 +8,8 @@ export type AuthUser = {
   email?: string;
   role: UserRole;
   organization?: string;
+  daira?: string;
+  baladiya?: string;
   coverUri?: string;
   logoUri?: string;
 };

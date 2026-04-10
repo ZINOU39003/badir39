@@ -17,21 +17,30 @@ export default function AdminPage() {
   const [selectedDaira, setSelectedDaira] = useState<string>("all");
   const [selectedBaladiya, setSelectedBaladiya] = useState<string>("all");
 
-  const refresh = useCallback(async () => {
+  const loadComplaints = useCallback(async () => {
     setLoading(true);
     try {
-      const items = await getAdminComplaints();
-      setComplaints(items);
-    } catch {
-      setComplaints([]);
+      let data: Complaint[] = [];
+      if (user?.role === "admin") {
+        data = await getAdminComplaints();
+      } else if (user?.role === "department") {
+        // Enforce isolation for department users
+        data = await getAdminComplaints({ 
+          daira: user.daira, 
+          baladiya: user.baladiya 
+        });
+      }
+      setComplaints(data);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    loadComplaints();
+  }, [loadComplaints]);
 
   // Extract unique dairas and baladiyas for filters
   const dairas = Array.from(new Set(complaints.map(c => c.district).filter(Boolean)));
@@ -62,7 +71,7 @@ export default function AdminPage() {
           </p>
         </div>
         <button
-          onClick={refresh}
+          onClick={loadComplaints}
           className="flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-2xl font-black text-xs hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
         >
           <RefreshCw size={18} className={loading ? "animate-spin" : ""} />

@@ -33,10 +33,18 @@ export default function DashboardPage() {
     if (!user) return;
     setLoading(true);
     try {
-      const items =
-        user.role === "admin" || user.role === "department"
-          ? await getAdminComplaints()
-          : await getMyComplaints(user.id);
+      let items: Complaint[] = [];
+      if (user.role === "admin") {
+        items = await getAdminComplaints();
+      } else if (user.role === "department") {
+        // Isolate data for depts by passing their daira/baladiya as filters
+        items = await getAdminComplaints({ 
+          daira: user.daira, 
+          baladiya: user.baladiya 
+        });
+      } else {
+        items = await getMyComplaints(user.id);
+      }
       setComplaints(items);
     } catch {
       setComplaints([]);

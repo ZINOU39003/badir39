@@ -22,13 +22,21 @@ export default function HierarchyPage() {
   const [search, setSearch] = useState("");
   const [stats, setStats] = useState<Record<string, number>>({});
 
-  // Mock fetching stats or just use state for now
+  // Fetch real stats from the database
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("/api/admin/stats/hierarchy");
+      const data = await res.json();
+      if (data.success) {
+        setStats(data.stats);
+      }
+    } catch (err) {
+      console.error("Failed to fetch hierarchy stats", err);
+    }
+  };
+
   useEffect(() => {
-    // In a real app, fetch how many depts exist for each baladiya
-    setStats({
-      "بلدية سيدي امحمد": 5,
-      "بلدية الجزائر الوسطى": 15,
-    });
+    fetchStats();
   }, []);
 
   const toggleExpand = (id: string) => {
@@ -45,8 +53,9 @@ export default function HierarchyPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`تم بنجاح! تم إنشاء ${data.results.created} مصلحة جديدة.`);
-        setStats(prev => ({ ...prev, [baladiyaName]: 15 }));
+        alert(data.message);
+        // Refresh stats after generation
+        fetchStats();
       } else {
         alert("فشل في التوليد: " + data.message);
       }
