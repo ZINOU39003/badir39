@@ -35,86 +35,85 @@ export const STANDARD_SECTORS: AdministrativeSector[] = [
 
 export const WILAYA_STRUCTURE: District[] = [
   {
-    id: "d-1",
-    name: "دائرة سيدي امحمد",
+    id: "el-oued",
+    name: "دائرة الوادي (مقر الولاية)",
     municipalities: [
-      { id: "m-1", name: "بلدية سيدي امحمد" },
-      { id: "m-2", name: "بلدية الجزائر الوسطى" },
-      { id: "m-3", name: "بلدية المرادية" },
-      { id: "m-4", name: "بلدية المدنية" },
+      { id: "m-1", name: "بلدية الوادي" },
+      { id: "m-2", name: "بلدية كوينين" },
     ],
   },
   {
-    id: "d-2",
-    name: "دائرة باب الوادي",
+    id: "bayadha",
+    name: "دائرة البياضة",
     municipalities: [
-      { id: "m-5", name: "بلدية باب الوادي" },
-      { id: "m-6", name: "بلدية بولوغين" },
-      { id: "m-7", name: "بلدية الرايس حميدو" },
+      { id: "m-3", name: "بلدية البياضة" },
     ],
   },
   {
-    id: "d-3",
-    name: "دائرة بئر مراد رايس",
+    id: "guemar",
+    name: "دائرة قمار",
     municipalities: [
-      { id: "m-8", name: "بلدية بئر مراد رايس" },
-      { id: "m-9", name: "بلدية حيدرة" },
+      { id: "m-4", name: "بلدية قمار" },
+      { id: "m-5", name: "بلدية تغزوت" },
+      { id: "m-6", name: "بلدية ورماس" },
     ],
   },
   {
-    id: "d-4",
-    name: "دائرة بوزريعة",
+    id: "debila",
+    name: "دائرة الدبيلة",
     municipalities: [
-      { id: "m-10", name: "بلدية بوزريعة" },
-      { id: "m-11", name: "بلدية بني مسوس" },
+      { id: "m-7", name: "بلدية الدبيلة" },
+      { id: "m-8", name: "بلدية حساني عبد الكريم" },
     ],
   },
   {
-    id: "d-5",
-    name: "دائرة الحراش",
+    id: "reguiba",
+    name: "دائرة الرقيبة",
     municipalities: [
-      { id: "m-12", name: "بلدية الحراش" },
-      { id: "m-13", name: "بلدية بوروبة" },
+      { id: "m-9", name: "بلدية الرقيبة" },
+      { id: "m-10", name: "بلدية الحمراية" },
     ],
   },
-  // We can add more to reach 10 dairas and 22 municipalities as per user description
   {
-    id: "d-6",
-    name: "دائرة الشراقة",
+    id: "magrane",
+    name: "دائرة المقرن",
     municipalities: [
-       { id: "m-14", name: "بلدية الشراقة" },
-       { id: "m-15", name: "بلدية دالي إبراهيم" },
-    ]
+      { id: "m-11", name: "بلدية المقرن" },
+      { id: "m-12", name: "بلدية سيدي عون" },
+    ],
   },
   {
-    id: "d-7",
-    name: "دائرة حسين داي",
+    id: "hassi-khelifa",
+    name: "دائرة حاسي خليفة",
     municipalities: [
-       { id: "m-16", name: "بلدية حسين داي" },
-       { id: "m-17", name: "بلدية القبة" },
-    ]
+      { id: "m-13", name: "بلدية حاسي خليفة" },
+      { id: "m-14", name: "بلدية الطريفاوي" },
+    ],
   },
   {
-    id: "d-8",
-    name: "دائرة الدار البيضاء",
+    id: "taleb-larbi",
+    name: "دائرة الطالب العربي",
     municipalities: [
-       { id: "m-18", name: "بلدية الدار البيضاء" },
-       { id: "m-19", name: "بلدية برج الكيفان" },
-    ]
+      { id: "m-15", name: "بلدية الطالب العربي" },
+      { id: "m-16", name: "بلدية دوار الماء" },
+      { id: "m-17", name: "بلدية بن قشة" },
+    ],
   },
   {
-    id: "d-9",
-    name: "دائرة زرالدو",
+    id: "robhah",
+    name: "دائرة الرباح",
     municipalities: [
-       { id: "m-20", name: "بلدية زرالدة" },
-       { id: "m-21", name: "بلدية سطاوالي" },
-    ]
+      { id: "m-18", name: "بلدية الرباح" },
+      { id: "m-19", name: "بلدية النخلة" },
+      { id: "m-20", name: "بلدية العقلة" },
+    ],
   },
   {
-    id: "d-10",
-    name: "دائرة رويبة",
+    id: "oume-ouensa",
+    name: "دائرة أميه ونسة",
     municipalities: [
-       { id: "m-22", name: "بلدية رويبة" },
-    ]
-  }
+      { id: "m-21", name: "بلدية أميه ونسة" },
+      { id: "m-22", name: "بلدية وادي العلندة" },
+    ],
+  },
 ];

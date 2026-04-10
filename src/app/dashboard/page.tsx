@@ -125,7 +125,7 @@ export default function DashboardPage() {
               <p className="text-primary-100 mt-3 text-sm leading-relaxed max-w-xl font-medium opacity-90">
                 {isCitizen
                   ? "ساهم في تحسين جودة الحياة في منطقتك من خلال تقديم بلاغاتك ومتابعتها بكل شفافية."
-                  : `نظام الإدارة المركزي لـ ${user?.organization || "ولاية الجزائر"}. تابع وتتبع الطلبات لضمان خدمة أفضل.`}
+                  : `نظام الإدارة المركزي لـ ${user?.organization || "ولاية الوادي"}. تابع وتتبع الطلبات لضمان خدمة أفضل.`}
               </p>
             </div>
             {isCitizen && (
