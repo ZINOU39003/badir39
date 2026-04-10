@@ -36,23 +36,21 @@ export type TimelineStep = {
   actor: string;
 };
 
-export type Complaint = {
+export interface Complaint {
   id: string;
-  reporter_id?: string;
-  lat?: number;
-  lng?: number;
-  reporter_name?: string;
-  reporter_phone?: string;
-  reporter_email?: string;
   title: string;
   description: string;
+  location_text: string;
+  lat?: number;
+  lng?: number;
+  district?: string;
+  municipality?: string;
   category: string;
-  location: string;
-  assigned_dept: string;
-  status: ComplaintStatus;
-  created_at: string;
+  status: 'submitted' | 'under_review' | 'in_progress' | 'resolved';
+  reporter_id: number;
+  assigned_dept?: string;
   media_urls?: string[];
-  history: TimelineStep[];
+  created_at: string;
   messages: Message[];
 };
 

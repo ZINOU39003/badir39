@@ -14,6 +14,8 @@ export async function GET() {
         password VARCHAR(255) NOT NULL,
         role ENUM('citizen', 'department', 'admin') DEFAULT 'citizen',
         organization VARCHAR(100),
+        daira VARCHAR(100),
+        baladiya VARCHAR(100),
         logo_uri TEXT,
         cover_uri TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -29,6 +31,8 @@ export async function GET() {
         location_text TEXT NOT NULL,
         lat DECIMAL(10, 8),
         lng DECIMAL(11, 8),
+        district VARCHAR(100),
+        municipality VARCHAR(100),
         category VARCHAR(100),
         status ENUM('submitted', 'under_review', 'in_progress', 'resolved') DEFAULT 'submitted',
         reporter_id INT,
