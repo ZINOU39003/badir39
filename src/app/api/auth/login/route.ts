@@ -36,7 +36,10 @@ export async function POST(req: Request) {
         full_name: user.full_name,
         phone: user.phone,
         role: user.role,
-        organization: user.organization
+        organization: user.organization,
+        daira: user.daira,
+        baladiya: user.baladiya,
+        is_manager: Boolean(user.is_manager)
       }
     });
   } catch (error: any) {

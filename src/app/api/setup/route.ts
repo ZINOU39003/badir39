@@ -14,8 +14,8 @@ export async function GET() {
         password VARCHAR(255) NOT NULL,
         role ENUM('citizen', 'department', 'admin') DEFAULT 'citizen',
         organization VARCHAR(100),
-        daira VARCHAR(100),
         baladiya VARCHAR(100),
+        is_manager BOOLEAN DEFAULT FALSE,
         logo_uri TEXT,
         cover_uri TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

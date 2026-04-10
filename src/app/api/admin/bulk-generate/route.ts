@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { STANDARD_SECTORS } from '@/lib/administrative-data';
 
 export async function POST(req: Request) {
   try {
@@ -10,72 +9,49 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "بيانات الموقع ناقصة" }, { status: 400 });
     }
 
-    const results = {
-      created: 0,
-      skipped: 0,
-      errors: [] as string[]
-    };
+    // Normalized username for the Municipality Manager
+    const normalizedBaladiya = baladiyaName.replace("بلدية", "").trim();
+    const managerUsername = `admin_${normalizedBaladiya.toLowerCase().replace(/\s+/g, '_')}`;
+    // Generate a unique phone/identifier (since it's a unique key)
+    const managerPhone = `mngr_${Math.floor(100000 + Date.now() % 1000000)}`;
 
-    // Normalize input names
-    const normalizedBaladiya = baladiyaName.trim();
-    const normalizedDaira = dairaName.trim();
+    // 1. Check if manager already exists
+    const [existing]: any = await pool.execute(
+      "SELECT id FROM users WHERE baladiya = ? AND is_manager = true",
+      [baladiyaName]
+    );
 
-    for (const sector of STANDARD_SECTORS) {
-      // 1. Generate a clean username
-      // Use timestamp + random to ensure phone uniqueness
-      const ts = Date.now().toString().slice(-6);
-      const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-      const uniqueSuffix = `${ts}${rand}`;
-      
-      const cleanSector = sector.id.toLowerCase();
-      // Use first 3 letters of baladiya for username to keep it short
-      const username = `${cleanSector}_${uniqueSuffix}`;
-      const phone = `00${uniqueSuffix}`; 
-
-      try {
-        // Check if EXACTLY this sector for this baladiya already exists
-        const [existing]: any = await pool.execute(
-          'SELECT id FROM users WHERE organization = ? AND baladiya = ?',
-          [sector.name, normalizedBaladiya]
-        );
-
-        if (existing.length > 0) {
-          results.skipped++;
-          continue;
-        }
-
-        // Create the department account
-        await pool.execute(
-          `INSERT INTO users (full_name, phone, username, password, role, organization, daira, baladiya, logo_uri) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            `${sector.name} - ${normalizedBaladiya}`,
-            phone,
-            username,
-            'bader123', 
-            'department',
-            sector.name,
-            normalizedDaira,
-            normalizedBaladiya,
-            sector.logo
-          ]
-        );
-        results.created++;
-      } catch (err: any) {
-        results.errors.push(`${sector.name}: ${err.message}`);
-      }
+    if (existing.length > 0) {
+      return NextResponse.json({ success: false, message: "مدير البلدية موجود بالفعل لهذه البلدية" });
     }
+
+    // 2. Create the Municipality Manager account
+    await pool.execute(
+      `INSERT INTO users (full_name, phone, username, password, role, daira, baladiya, is_manager) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        `مدير بلدية ${normalizedBaladiya}`,
+        managerPhone,
+        managerUsername,
+        'bader123', // Default professional password
+        'department', // Base role is department
+        dairaName,
+        baladiyaName,
+        true // is_manager flag
+      ]
+    );
 
     return NextResponse.json({ 
       success: true, 
-      results,
-      message: results.created > 0 
-        ? `تم إنشاء ${results.created} مصلحة بنجاح.` 
-        : results.skipped === STANDARD_SECTORS.length 
-          ? "جميع المصالح محملة مسبقاً لهذا الموقع."
-          : "لم يتم إنشاء مصالح جديدة، يرجى التحقق من الأخطاء."
+      message: `تم تعيين مدير لبلدية ${baladiyaName} بنجاح.`,
+      manager: { 
+        username: managerUsername,
+        password: 'bader123'
+      }
     });
+
   } catch (error: any) {
+    console.error("Bulk Generate Error:", error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }

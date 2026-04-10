@@ -48,6 +48,14 @@ const deptLinks = [
   { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
 ];
 
+const municipalityLinks = [
+  { href: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
+  { href: "/dashboard/admin", label: "الطلبات الواردة", icon: Shield },
+  { href: "/dashboard/municipality", label: "إدارة البلدية", icon: Building2 },
+  { href: "/dashboard/reports", label: "التقرير والإحصاء", icon: FileText },
+  { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
+];
+
 const bottomLinks = [
   { href: "/dashboard/profile", label: "حسابي", icon: User },
   { href: "/dashboard/settings", label: "الإعدادات", icon: Settings },
@@ -60,9 +68,12 @@ export function Sidebar() {
 
   const isStaff = user?.role === "admin" || user?.role === "department";
   const isAdmin = user?.role === "admin";
+  const isManager = user?.is_manager;
 
   const links = isAdmin
     ? adminLinks
+    : isManager
+    ? municipalityLinks
     : isStaff
     ? deptLinks
     : citizenLinks;

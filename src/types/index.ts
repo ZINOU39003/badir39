@@ -10,6 +10,7 @@ export type AuthUser = {
   organization?: string;
   daira?: string;
   baladiya?: string;
+  is_manager?: boolean;
   coverUri?: string;
   logoUri?: string;
 };

@@ -81,7 +81,7 @@ export default function HierarchyPage() {
           </div>
           <h1 className="text-4xl font-black">إدارة هيكل الولاية</h1>
           <p className="text-slate-400 text-sm mt-2 max-w-xl font-medium leading-relaxed">
-            تحكم في كافة المصالح الحكومية عبر الدوائر والبلديات. يمكنك توليد الحسابات الإدارية آلياً بضغطة زر واحدة لكل بلدية.
+            تحكم في هيكل الولاية. قم بتعيين "مدير لكل بلدية" ليتولى هو بدوره إدارة وتنسيق المصالح التابعة لبلديته بشكل مستقل.
           </p>
         </div>
       </div>
@@ -121,7 +121,7 @@ export default function HierarchyPage() {
                 <div className="bg-white divide-y divide-border/50 animate-in slide-in-from-top-2 duration-300">
                   {d.municipalities.map((m) => {
                     const count = stats[m.name] || 0;
-                    const isComplete = count >= 15;
+                    const isManagerCreated = count > 0; // If at least 1 user exists, we assume manager is created
                     const isGenerating = loading[m.name];
 
                     return (
@@ -129,33 +129,33 @@ export default function HierarchyPage() {
                         <div className="flex items-center gap-4">
                           <div className={cn(
                             "w-2 h-10 rounded-full",
-                            isComplete ? "bg-emerald-500" : "bg-slate-200"
+                            isManagerCreated ? "bg-primary" : "bg-slate-200"
                           )} />
                           <div>
                             <p className="font-bold text-sm text-slate-700">{m.name}</p>
                             <div className="flex items-center gap-2 mt-1">
-                               {isComplete ? (
-                                  <span className="flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                               {isManagerCreated ? (
+                                  <span className="flex items-center gap-1 text-[10px] font-black text-primary bg-primary-50 px-2 py-0.5 rounded-full">
                                     <CheckCircle2 size={12} />
-                                    مكتمل (15/15 مصلحة)
+                                    تم تعيين مديـر للبلدية
                                   </span>
                                ) : (
                                   <span className="text-[10px] font-bold text-muted-foreground">
-                                    {count}/15 مصلحة مفعلة
+                                    لم يتم تعيين مدير بعد
                                   </span>
                                )}
                             </div>
                           </div>
                         </div>
 
-                        {!isComplete && (
+                        {!isManagerCreated && (
                           <button
                             onClick={() => handleBulkGenerate(m.name, d.name)}
                             disabled={isGenerating}
-                            className="flex items-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50"
+                            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-slate-200 hover:bg-black active:scale-95 transition-all disabled:opacity-50"
                           >
                             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
-                            {isGenerating ? "جاري التوليد..." : "تفعيل كافة المصالح"}
+                            {isGenerating ? "جاري التعيين..." : "تعيين مدير للبلدية"}
                           </button>
                         )}
                       </div>
@@ -168,15 +168,15 @@ export default function HierarchyPage() {
         </div>
       </div>
 
-      <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-start gap-4">
-        <div className="w-10 h-10 bg-white rounded-xl border border-emerald-200 flex items-center justify-center text-emerald-500 shrink-0">
+      <div className="bg-primary-50 border border-primary-100 p-6 rounded-3xl flex items-start gap-4">
+        <div className="w-10 h-10 bg-white rounded-xl border border-primary-200 flex items-center justify-center text-primary shrink-0">
           <ShieldCheck size={20} />
         </div>
         <div>
-          <h4 className="font-black text-emerald-900 text-sm mb-1">معلومات عن التوليد الآلي</h4>
-          <p className="text-xs text-emerald-700 leading-relaxed font-medium">
-            عند "تفعيل كافة المصالح"، سيتم تلقائياً إنشاء 15 حساباً إدارياً لمصلحة (الماء، الكهرباء، النظافة، إلخ) لهذه البلدية. 
-            أسماء المستخدمين ستكون احترافية بنمط منظّم، وكلمة المرور الافتراضية ستكون <span className="font-black">bader123</span>.
+          <h4 className="font-black text-primary-900 text-sm mb-1">حول نظام مدراء البلديات</h4>
+          <p className="text-xs text-primary-700 leading-relaxed font-medium">
+            عند "تعيين مدير"، سيقوم النظام بإنشاء حساب إداري خاص لهذه البلدية. 
+            سيتمكن هذا المدير من الدخول وإضافة الـ 15 مصلحة الخاصة ببلديته، ومتابعة بلاغات مواطنيه بشكل مباشر.
           </p>
         </div>
       </div>
