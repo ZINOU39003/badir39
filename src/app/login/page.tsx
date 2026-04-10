@@ -18,7 +18,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone.trim() || !password) {
-      setError("يرجى إدخال رقم الجوال وكلمة المرور للمتابعة.");
+      setError("يرجى إدخال (رقم الهاتف أو اسم المستخدم) وكلمة المرور للمتابعة.");
       return;
     }
     setBusy(true);
@@ -72,7 +72,7 @@ export default function LoginPage() {
             مرحباً بك في بادر
           </h2>
           <p className="text-muted-foreground text-sm mb-8">
-            يرجى إدخال رقم الهاتف وكلمة المرور الخاصة بك
+            يرجى إدخال رقم الهاتف أو اسم المستخدم وكلمة المرور
           </p>
 
           {error && (
@@ -83,13 +83,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-sm font-bold mb-2">رقم الهاتف</label>
+              <label className="block text-sm font-bold mb-2">رقم الهاتف أو اسم المستخدم</label>
               <div className="relative">
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="05xxxxxxxx"
+                  placeholder="رقم الهاتف أو اسم المستخدم"
                   className="w-full h-12 pr-4 pl-12 rounded-xl border border-border bg-surface text-foreground font-semibold text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   dir="ltr"
                 />

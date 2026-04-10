@@ -8,14 +8,12 @@ export async function POST(req: Request) {
   try {
     const { phone, password, username } = await req.json();
 
-    // Support both phone and username for login
-    let query = 'SELECT * FROM users WHERE phone = ? AND password = ?';
-    let params = [phone || username, password];
+    // Flexible identifier: can be phone or username
+    const identifier = phone || username;
 
-    if (username && !phone) {
-        query = 'SELECT * FROM users WHERE username = ? AND password = ?';
-        params = [username, password];
-    }
+    // Search for user by phone OR username
+    const query = 'SELECT * FROM users WHERE (phone = ? OR username = ?) AND password = ?';
+    const params = [identifier, identifier, password];
 
     const [rows]: any = await pool.execute(query, params);
 
