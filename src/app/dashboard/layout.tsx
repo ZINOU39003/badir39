@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 
 export default function DashboardLayout({
   children,
@@ -33,7 +34,8 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-background">
       <Sidebar />
       <main className="lg:mr-72 min-h-screen">
-        <div className="p-6 lg:p-8 pt-16 lg:pt-8">{children}</div>
+        <DashboardHeader />
+        <div className="p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );
