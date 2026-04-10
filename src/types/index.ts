@@ -46,12 +46,13 @@ export interface Complaint {
   district?: string;
   municipality?: string;
   category: string;
-  status: 'submitted' | 'under_review' | 'in_progress' | 'resolved';
+  status: ComplaintStatus;
   reporter_id: number;
   assigned_dept?: string;
   media_urls?: string[];
   created_at: string;
   messages: Message[];
+  history?: TimelineStep[];
 };
 
 export type ServiceDept = {

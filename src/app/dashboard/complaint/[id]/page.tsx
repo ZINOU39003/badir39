@@ -60,7 +60,7 @@ export default function ComplaintDetailPage() {
 
         // Fetch reporter info if admin/dept
         if ((user.role === "admin" || user.role === "department") && found.reporter_id) {
-          const reporterInfo = await getUserById(found.reporter_id);
+          const reporterInfo = await getUserById(String(found.reporter_id));
           setReporter(reporterInfo);
         }
       }
@@ -117,7 +117,7 @@ export default function ComplaintDetailPage() {
   const openInMaps = () => {
     if (!complaint?.lat || !complaint?.lng) {
       // Fallback if no coords, use location text
-      const query = encodeURIComponent(complaint?.location || "الجزائر");
+      const query = encodeURIComponent(complaint?.location_text || "الجزائر");
       window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
       return;
     }
@@ -197,8 +197,8 @@ export default function ComplaintDetailPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-background rounded-xl border border-border/50">
               <InfoItem icon={Calendar} label="تاريخ التقديم" value={formatDate(complaint.created_at)} />
-              <InfoItem icon={Building2} label="المصلحة" value={complaint.assigned_dept} />
-              <InfoItem icon={MapPin} label="الموقع" value={complaint.location || "الجزائر العاصمة"} />
+              <InfoItem icon={Building2} label="المصلحة" value={complaint.assigned_dept || "قيد التوجيه"} />
+              <InfoItem icon={MapPin} label="الموقع" value={complaint.location_text || complaint.municipality || "الجزائر العاصمة"} />
               <InfoItem icon={ShieldCheck} label="الدرجة" value={complaint.category || "عام"} />
             </div>
 
