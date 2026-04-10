@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const [rows]: any = await pool.execute(
       'SELECT * FROM messages WHERE complaint_id = ? ORDER BY created_at ASC',
       [id]
@@ -18,9 +18,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const complaintId = params.id;
+    const { id: complaintId } = await params;
     const { sender_id, sender_name, sender_role, text } = await req.json();
 
     await pool.execute(
