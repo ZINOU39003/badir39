@@ -9,12 +9,19 @@ import {
   PieChart, 
   TrendingUp,
   Search,
-  Calendar
+  Calendar,
+  Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ReportsPage() {
   const { user } = useAuth();
+  
+  const isDept = user?.role === "department";
+  const orgName = user?.organization || "الإدارة العامة";
+
+  // Filtered stats logic (mocked to reflect the user's org)
+  const reportTitle = isDept ? `تقرير أداء: ${orgName}` : "التقرير الإحصائي العام للمنصة";
 
   const handlePrint = () => {
     window.print();
@@ -22,21 +29,58 @@ export default function ReportsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Branding Header (Visible in UI and Print) */}
+      <div className="flex items-center justify-between pb-6 border-b-2 border-primary/20 bg-surface/50 p-6 rounded-3xl shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
+        
+        {/* Site Logo */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+            <span className="text-white font-black text-3xl">ب</span>
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-primary">بادر</h2>
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mt-1">المنصة الوطنية للشكاوي</p>
+          </div>
+        </div>
+
+        {/* Report Identification (Center) */}
+        <div className="hidden md:flex flex-col items-center text-center">
+            <h1 className="text-sm font-black text-slate-900 border-b border-slate-200 pb-1 mb-1 px-4">تقرير رسمي مختوم</h1>
+            <p className="text-[10px] text-muted-foreground font-bold">{new Date().toLocaleDateString('ar-DZ')}</p>
+        </div>
+
+        {/* Department Logo */}
+        <div className="flex items-center gap-4 relative z-10">
+           <div className="text-left md:text-right hidden sm:block">
+             <h2 className="text-sm font-black text-slate-800">{orgName}</h2>
+             <p className="text-[9px] text-muted-foreground font-bold">الهيئة المختصة</p>
+           </div>
+           <div className="w-16 h-16 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
+             {user?.logoUri ? (
+               <img src={user.logoUri} alt="Logo" className="w-full h-full object-cover" />
+             ) : (
+               <Building2 size={32} className="text-slate-400" />
+             )}
+           </div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black flex items-center gap-3">
-            <FileText size={32} className="text-primary" />
-            التقرير والإحصاء
+          <h1 className="text-2xl font-black flex items-center gap-3">
+            <FileText size={24} className="text-primary" />
+            {reportTitle}
           </h1>
-          <p className="text-muted-foreground text-sm mt-1 font-medium">استخراج التقارير التحليلية والبيانات الإحصائية للمنصة</p>
+          <p className="text-muted-foreground text-[11px] mt-1 font-bold">يرجى ملاحظة أن هذه البيانات سرية وخاصة بـ {orgName} فقط.</p>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={handlePrint}
-            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-lg"
+            className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs hover:bg-slate-800 transition-all shadow-xl active:scale-95"
           >
-            <Printer size={16} />
-            طباعة التقرير (PDF)
+            <Printer size={18} />
+            تصدير PDF / طباعة
           </button>
         </div>
       </div>
@@ -45,50 +89,56 @@ export default function ReportsPage() {
         {/* Filters */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-surface rounded-2xl border border-border p-6 shadow-sm">
-            <h3 className="text-xs font-black uppercase mb-4 text-muted-foreground">تصفية التقرير</h3>
+            <h3 className="text-[10px] font-black uppercase mb-4 text-muted-foreground tracking-widest">تصفية التقرير</h3>
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-muted-foreground">الفترة الزمنية</label>
                 <div className="relative">
-                  <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <select className="w-full h-10 pr-9 pl-4 bg-background border border-border rounded-lg text-xs font-bold appearance-none">
+                  <Calendar size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-50" />
+                  <select className="w-full h-10 pr-9 pl-4 bg-background border border-border rounded-lg text-xs font-bold appearance-none transition-all focus:ring-2 focus:ring-primary/10">
                     <option>آخر 30 يوم</option>
                     <option>الربع الحالي</option>
                     <option>السنة الحالية</option>
                   </select>
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-muted-foreground">المصلحة المعنية</label>
-                <select className="w-full h-10 px-4 bg-background border border-border rounded-lg text-xs font-bold appearance-none">
-                  <option>كافة المصالح</option>
-                  <option>بلدية الدبيلة</option>
-                  <option>الموارد المائية</option>
-                </select>
-              </div>
-              <button className="w-full py-2.5 bg-primary/10 text-primary text-xs font-black rounded-lg hover:bg-primary/20 transition-all">
+              
+              {!isDept && (
+                <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-bold text-muted-foreground">المصلحة المعنية</label>
+                  <select className="w-full h-10 px-4 bg-background border border-border rounded-lg text-xs font-bold appearance-none">
+                    <option>كافة المصالح</option>
+                    <option>بلدية الدبيلة</option>
+                    <option>مديرية الري</option>
+                  </select>
+                </div>
+              )}
+
+              <button className="w-full py-3 bg-primary text-white text-[10px] font-black rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary/10">
                 تحديث التصفية
               </button>
             </div>
           </div>
 
-          <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 border-r-4 border-r-primary">
-            <TrendingUp size={24} className="text-primary mb-3" />
-            <p className="text-xs font-black text-primary mb-1">النمو العام</p>
-            <p className="text-2xl font-black text-primary-900">+12.5%</p>
-            <p className="text-[10px] text-primary/60 mt-1 font-bold">زيادة في حل البلاغات مقارنة بالشهر السابق</p>
+          <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden group">
+            <TrendingUp size={48} className="absolute -right-4 -bottom-4 text-white/10 group-hover:scale-125 transition-transform" />
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">نسبة الإنجاز</p>
+            <p className="text-3xl font-black">{isDept ? "94%" : "82.5%"}</p>
+            <p className="text-[9px] text-white/50 mt-2 font-bold leading-relaxed">
+               {isDept ? "أداء ممتاز مقارنة بالمتوسط الوطني" : "نمو مستقر في حل البلاغات"}
+            </p>
           </div>
         </div>
 
         {/* Report Content */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-surface rounded-3xl border border-border p-8 shadow-sm">
+          <div className="bg-surface rounded-3xl border border-border p-8 shadow-sm print:shadow-none print:border-none">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-lg font-black flex items-center gap-2">
+              <h2 className="text-base font-black flex items-center gap-2">
                 <BarChart3 size={20} className="text-primary" />
-                ملخص الأداء الميداني
+                ملخص مؤشرات الأداء - {new Date().getFullYear()}
               </h2>
-              <span className="text-[10px] font-bold text-muted-foreground">آخر تحديث: اليوم، 10:30 صباحاً</span>
+              <span className="text-[10px] font-bold text-muted-foreground">سري للغاية • للاستعمال الإداري فقط</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
