@@ -153,8 +153,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: List */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* Full Width Column: List of Complaints */}
+        <div className="lg:col-span-3 space-y-8">
           {/* Recent Complaints */}
           <div className="bg-surface rounded-3xl border border-border shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-8 py-6 border-b border-border">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {complaints.slice(0, 5).map((c) => (
+                {complaints.slice(0, 10).map((c) => (
                   <Link
                     key={c.id}
                     href={`/dashboard/complaint/${c.id}`}
@@ -210,71 +210,6 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Right Column: Detailed Stats */}
-        <div className="space-y-6">
-           {/* Detailed Progress Card */}
-           <div className="bg-surface rounded-3xl border border-border p-6 shadow-sm">
-            <h3 className="text-sm font-black mb-6 flex items-center gap-2">
-              <BarChart3 size={18} className="text-primary" />
-              الإحصائيات التحليلية
-            </h3>
-            
-            <div className="space-y-6">
-              {/* Resolution Rate */}
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <p className="text-xs font-bold text-muted-foreground">نسبة حل البلاغات</p>
-                  <p className="text-lg font-black text-primary">{resolutionRate}%</p>
-                </div>
-                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary transition-all duration-1000 ease-out" 
-                    style={{ width: `${resolutionRate}%` }} 
-                  />
-                </div>
-              </div>
-
-              {/* Department Distribution */}
-              <div className="pt-4 border-t border-border">
-                <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-4">أكثر المصالح استقبالاً</p>
-                <div className="space-y-4">
-                   {topDepts.length > 0 ? topDepts.map((dept, i) => (
-                     <div key={i} className="space-y-1.5">
-                       <div className="flex justify-between items-center text-[11px] font-bold">
-                         <span className="truncate max-w-[150px]">{dept.name}</span>
-                         <span>{dept.total} بلاغ</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
-                         <div 
-                           className="h-full bg-slate-400 rounded-full opacity-60" 
-                           style={{ width: `${(dept.total / total) * 100}%` }} 
-                         />
-                       </div>
-                     </div>
-                   )) : (
-                     <p className="text-xs text-muted-foreground font-medium italic">لا توجد بيانات كافية</p>
-                   )}
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
-                  <p className="text-[10px] font-black text-primary uppercase mb-1">اقتراح ترقية</p>
-                  <p className="text-[11px] text-primary/70 font-medium leading-relaxed">
-                    تحليل الأسبوع يظهر زيادة في بلاغات الإنارة، نقترح توجيه فريق الصيانة لحي المركز.
-                  </p>
-                </div>
-              </div>
-            </div>
-           </div>
-
-           {/* Mobile Tools Quick Access */}
-           <div className="grid grid-cols-2 gap-3">
-              <QuickTool icon={Building2} label="المصالح" href="/dashboard/departments" />
-              <QuickTool icon={Users} label="المستخدمين" href="/dashboard/admin" />
-           </div>
         </div>
       </div>
     </div>

@@ -56,13 +56,18 @@ export function DashboardHeader() {
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.map(n => (
-                    <div key={n.id} className={cn("p-4 hover:bg-background transition-colors cursor-pointer border-b border-border last:border-0", n.unread && "bg-primary/[0.02]")}>
+                    <Link 
+                      key={n.id} 
+                      href={user?.role === 'citizen' ? '/dashboard/tracking' : '/dashboard/admin'}
+                      onClick={() => setShowNotifications(false)}
+                      className={cn("block p-4 hover:bg-background transition-colors cursor-pointer border-b border-border last:border-0", n.unread && "bg-primary/[0.02]")}
+                    >
                       <div className="flex justify-between items-start mb-1">
                         <span className="text-xs font-bold text-foreground">{n.title}</span>
                         <span className="text-[9px] text-muted-foreground">{n.time}</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground leading-relaxed">{n.desc}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
                 <Link href="/dashboard/notifications" className="block text-center p-3 text-xs font-bold text-primary hover:bg-primary/5 transition-colors">
