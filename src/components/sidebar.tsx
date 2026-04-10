@@ -14,11 +14,12 @@ import {
   BarChart3,
   Building2,
   FileText,
-  User,
-  Settings,
   LogOut,
   Menu,
   X,
+  Zap,
+  User,
+  Settings
 } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ const citizenLinks = [
 const adminLinks = [
   { href: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/dashboard/admin", label: "الطلبات الواردة", icon: Shield },
+  { href: "/dashboard/admin/hierarchy", label: "هيكل الولاية", icon: Zap },
   { href: "/dashboard/stats", label: "الإحصائيات", icon: BarChart3 },
   { href: "/dashboard/departments", label: "المصالح", icon: Building2 },
   { href: "/dashboard/reports", label: "التقرير والإحصاء", icon: FileText },
