@@ -98,7 +98,7 @@ export function DashboardHeader() {
           {showNotifications && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowNotifications(false)} />
-              <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-4 border-b border-border flex items-center justify-between">
                   <span className="text-sm font-black">الإشعارات</span>
                   <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">جديد ({unreadCount})</span>
@@ -142,7 +142,7 @@ export function DashboardHeader() {
           {showProfile && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowProfile(false)} />
-              <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-4 border-b border-border bg-primary-50/30">
                   <p className="text-xs font-black">{user?.full_name}</p>
                   <p className="text-[10px] text-muted-foreground font-bold mt-0.5 capitalize">{user?.role}</p>

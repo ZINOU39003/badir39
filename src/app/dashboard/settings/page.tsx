@@ -12,25 +12,25 @@ export default function SettingsPage() {
       icon: Shield,
       label: "الأمان وكلمة المرور",
       desc: "تغيير كلمة المرور وإعدادات الأمان",
-      href: "#",
+      href: "/dashboard/profile",
     },
     {
       icon: Globe,
       label: "لغة التطبيق",
       desc: "العربية (افتراضي)",
-      href: "#",
+      href: "/dashboard/profile",
     },
     {
       icon: Lock,
       label: "سياسة الخصوصية",
       desc: "كيفية معالجة بياناتكم",
-      href: "#",
+      href: "/dashboard/profile",
     },
     {
       icon: Info,
       label: "حول المنصة",
-      desc: "الإصدار 2.0 - منصة بادر الوطنية",
-      href: "#",
+      desc: "الإصدار 4.4 - منصة بادر الوطنية",
+      href: "/dashboard/profile",
     },
   ];
 

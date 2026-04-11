@@ -28,8 +28,10 @@ export async function GET(req: Request) {
     }
 
     if (dept) {
-      query += ' AND assigned_dept = ?';
-      params.push(dept);
+      // Changed from EXACT match (=) to Partial match (LIKE) 
+      // to ensure "الحماية المدنية" complaints show up for "مصلحة الحماية المدنية - الدبيلة"
+      query += ' AND assigned_dept LIKE ?'; 
+      params.push(`%${dept}%`);
     }
 
     query += ' ORDER BY created_at DESC';

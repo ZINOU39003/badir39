@@ -70,7 +70,33 @@ export default function EmergencyPage() {
         );
         if (matchedDistrict) setDistrict(matchedDistrict.name);
 
-        // Find nearest unit
+        // Fetch Real DB Departments for this municipality
+        try {
+          const dbRes = await fetch(`/api/admin/departments?baladiya=${encodeURIComponent(city)}`);
+          const dbData = await dbRes.json();
+          if (dbData.success && dbData.data.items.length > 0) {
+            // Find a unit that matches Protection
+            const protectionDept = dbData.data.items.find((d: any) => 
+              d.organization.includes("الحماية") || d.full_name.includes("الحماية")
+            );
+            if (protectionDept) {
+              setNearestUnit({
+                id: protectionDept.id,
+                name: protectionDept.organization || protectionDept.full_name,
+                municipality: city,
+                phone: protectionDept.phone || "032123456", // Fallback if no phone in DB
+                lat: latitude,
+                lng: longitude,
+                address: ""
+              });
+              return; // Stop here if found in DB
+            }
+          }
+        } catch (dbErr) {
+          console.error("DB_FETCH_FAILED", dbErr);
+        }
+
+        // Fallback to hardcoded units if DB fails or not found
         const unit = getNearestUnit(city);
         if (unit) setNearestUnit(unit);
       } catch (err) {
@@ -150,7 +176,7 @@ export default function EmergencyPage() {
         location_text: locationText || "موقع استغاثة",
         lat: coords.lat,
         lng: coords.lng,
-        assigned_dept: "الحماية المدنية",
+        assigned_dept: nearestUnit?.name || "الحماية المدنية",
         media_urls: [compressed],
         municipality: municipality || "غير محدد",
         district: district || "غير محدد"

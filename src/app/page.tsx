@@ -168,7 +168,7 @@ export default function LandingPage() {
         }
       `}</style>
       <div className="text-center py-10 opacity-40">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">بادر 2026 - تحديث الاستقرار والواجهة v4.3</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">بادر 2026 - تحديث الربط الحي وتزامن البيانات v4.4</p>
         <Link 
           href="/about-developer" 
           className="text-[9px] font-black text-primary hover:underline transition-all"
