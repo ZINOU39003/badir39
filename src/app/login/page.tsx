@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { Phone, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Phone, Lock, Eye, EyeOff, ArrowLeft, ShieldAlert } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -136,13 +136,23 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link
-              href="/register"
-              className="text-primary font-bold text-sm hover:underline"
+          <div className="mt-8 pt-6 border-t border-border space-y-4">
+            <button 
+              onClick={() => router.push("/emergency")}
+              className="w-full h-14 bg-red-600 text-white rounded-xl font-black text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-100 flex items-center justify-center gap-2 animate-pulse"
             >
-              إنشاء حساب جديد
-            </Link>
+              <ShieldAlert size={20} />
+              طوارئ (الحماية المدنية)
+            </button>
+
+            <div className="text-center">
+              <Link
+                href="/register"
+                className="text-primary font-bold text-sm hover:underline"
+              >
+                إنشاء حساب جديد
+              </Link>
+            </div>
           </div>
         </div>
       </div>
