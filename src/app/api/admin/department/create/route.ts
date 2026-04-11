@@ -42,7 +42,14 @@ export async function POST(req: Request) {
         ]
       );
 
-      return NextResponse.json({ success: true, message: "تم إنشاء المصلحة بنجاح" });
+      return NextResponse.json({ 
+        success: true, 
+        message: "تم إنشاء المصلحة بنجاح",
+        manager: {
+          username: username,
+          password: 'bader123'
+        }
+      });
 
     } catch (err: any) {
       if (err.code === 'ER_DUP_ENTRY') {

@@ -6,31 +6,69 @@ import { STANDARD_SECTORS } from "@/lib/administrative-data";
 import { 
   Building2, 
   PlusCircle, 
-  Users, 
   CheckCircle2, 
   Loader2, 
   ShieldCheck,
   LayoutGrid,
-  History
+  History,
+  X,
+  AtSign,
+  Key,
+  Copy,
+  Droplets,
+  Zap,
+  Trash2,
+  Stethoscope,
+  BookOpen,
+  Home,
+  Leaf,
+  ShoppingBag,
+  Shield,
+  LifeBuoy,
+  Truck,
+  Heart,
+  Gamepad2,
+  Lightbulb
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Icon mapping for professional look
+const sectorIcons: Record<string, any> = {
+  water: Droplets,
+  energy: Zap,
+  sanitation: Trash2,
+  roads: Truck,
+  health: Stethoscope,
+  education: BookOpen,
+  housing: Home,
+  environment: Leaf,
+  trade: ShoppingBag,
+  security: Shield,
+  civil_protection: LifeBuoy,
+  transport: Truck,
+  social: Heart,
+  youth: Gamepad2,
+  lighting: Lightbulb
+};
 
 export default function MunicipalityManagerPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState<Record<string, boolean>>({});
   const [initLoading, setInitLoading] = useState(true);
+  const [managerResult, setManagerResult] = useState<{username: string, password: string, sector: string} | null>(null);
 
-  // Check which depts are already created
   const fetchLocalStats = async () => {
     if (!user?.baladiya) return;
     try {
-      const res = await fetch("/api/admin/stats/hierarchy");
+      const res = await fetch(`/api/admin/departments?baladiya=${encodeURIComponent(user.baladiya)}`);
       const data = await res.json();
       if (data.success) {
-        // Here we'd ideally have a more detailed stats API
-        // For now, let's assume if count is 1, only manager exists.
-        // We'll mock the specific depts for now or fetch depts list
+        const active: Record<string, boolean> = {};
+        data.data.items.forEach((d: any) => {
+          active[d.organization] = true;
+        });
+        setStats(active);
       }
     } catch (err) {
       console.error(err);
@@ -61,7 +99,11 @@ export default function MunicipalityManagerPage() {
       const data = await res.json();
       if (data.success) {
         setStats(prev => ({ ...prev, [sectorName]: true }));
-        alert(`تم تفعيل حساب ${sectorName} بنجاح!`);
+        setManagerResult({
+          username: data.manager.username,
+          password: data.manager.password,
+          sector: sectorName
+        });
       } else {
         alert("فشل التفعيل: " + data.message);
       }
@@ -83,7 +125,7 @@ export default function MunicipalityManagerPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Header Section */}
       <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32" />
@@ -118,7 +160,7 @@ export default function MunicipalityManagerPage() {
           </div>
           <div>
             <p className="text-xs font-bold text-muted-foreground uppercase">المصالح المفعلة</p>
-            <h4 className="text-xl font-black">قيد التحديث</h4>
+            <h4 className="text-xl font-black">{Object.keys(stats).length} مصلحة</h4>
           </div>
         </div>
         <div className="bg-surface p-6 rounded-3xl border border-border shadow-sm flex items-center gap-4">
@@ -137,12 +179,13 @@ export default function MunicipalityManagerPage() {
         {STANDARD_SECTORS.map((sector) => {
           const isEnabled = stats[sector.name];
           const isActing = loading[sector.name];
+          const Icon = sectorIcons[sector.id] || Building2;
 
           return (
             <div key={sector.id} className="bg-surface rounded-3xl border border-border p-6 shadow-sm hover:shadow-md transition-all group">
               <div className="flex items-start justify-between mb-6">
-                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-border text-2xl group-hover:scale-110 transition-transform">
-                  {sector.logo}
+                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-border text-primary group-hover:scale-110 transition-transform">
+                  <Icon size={28} />
                 </div>
                 {isEnabled ? (
                   <span className="bg-emerald-50 text-emerald-600 p-1.5 rounded-full">
@@ -162,7 +205,7 @@ export default function MunicipalityManagerPage() {
                 <button
                   onClick={() => handleCreateDept(sector.name)}
                   disabled={isActing}
-                  className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white h-12 rounded-2xl font-black text-xs hover:bg-black active:scale-[0.98] transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white h-12 rounded-2xl font-black text-xs hover:bg-black active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-slate-200"
                 >
                   {isActing ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
                   تفعيل الحساب الآن
@@ -178,6 +221,76 @@ export default function MunicipalityManagerPage() {
           );
         })}
       </div>
+
+      {/* Credentials Modal */}
+      {managerResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setManagerResult(null)} />
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-emerald-600 p-8 text-white relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+               <button onClick={() => setManagerResult(null)} className="absolute top-6 left-6 text-white/50 hover:text-white transition-colors">
+                 <X size={24} />
+               </button>
+               <CheckCircle2 size={48} className="mb-4 text-white/90" />
+               <h2 className="text-2xl font-black italic">تم تفعيل المصلحة بنجاح</h2>
+               <p className="text-emerald-50 text-xs font-bold mt-1 uppercase tracking-widest">{managerResult.sector}</p>
+            </div>
+            
+            <div className="p-8 space-y-6">
+               <div className="space-y-4">
+                  <div className="group relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">اسم المستخدم للمصلحة</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-emerald-500 transition-all">
+                       <AtSign size={18} className="text-slate-400" />
+                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.username}</span>
+                       <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(managerResult.username);
+                          alert("تم نسخ اسم المستخدم");
+                        }}
+                        className="text-emerald-600 hover:scale-110 transition-transform p-1"
+                       >
+                         <Copy size={16} />
+                       </button>
+                    </div>
+                  </div>
+
+                  <div className="group relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">كلمة المرور الافتراضية</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-emerald-500 transition-all">
+                       <Key size={18} className="text-slate-400" />
+                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.password}</span>
+                       <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(managerResult.password);
+                          alert("تم نسخ كلمة المرور");
+                        }}
+                        className="text-emerald-600 hover:scale-110 transition-transform p-1"
+                       >
+                         <Copy size={16} />
+                       </button>
+                    </div>
+                  </div>
+               </div>
+
+               <p className="text-[10px] text-slate-400 text-center font-bold px-4">
+                 يرجى منح هذه البيانات للموظف المسؤول عن هذه المصلحة ليتمكن من الدخول للمنصة.
+               </p>
+
+               <div className="pt-2">
+                  <button 
+                    onClick={() => setManagerResult(null)}
+                    className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black group overflow-hidden relative"
+                  >
+                    <span className="relative z-10">إتمام التفعيل</span>
+                    <div className="absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  </button>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
