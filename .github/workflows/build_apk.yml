@@ -1,0 +1,36 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: bader_app
+        
+      - name: Build APK
+        run: flutter build apk --release
+        working-directory: bader_app
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bader_android_build
+          path: bader_app/build/app/outputs/flutter-apk/app-release.apk
