@@ -12,7 +12,11 @@ import {
   ChevronDown, 
   ChevronRight,
   ShieldCheck,
-  Zap
+  Zap,
+  X,
+  AtSign,
+  Key,
+  Copy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +47,8 @@ export default function HierarchyPage() {
     setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const [managerResult, setManagerResult] = useState<{username: string, password: string, baladiya: string} | null>(null);
+
   const handleBulkGenerate = async (baladiyaName: string, dairaName: string) => {
     setLoading(prev => ({ ...prev, [baladiyaName]: true }));
     try {
@@ -53,7 +59,11 @@ export default function HierarchyPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
+        setManagerResult({
+           username: data.manager.username,
+           password: data.manager.password,
+           baladiya: baladiyaName
+        });
         // Refresh stats after generation
         fetchStats();
       } else {
@@ -148,16 +158,34 @@ export default function HierarchyPage() {
                           </div>
                         </div>
 
-                        {!isManagerCreated && (
-                          <button
-                            onClick={() => handleBulkGenerate(m.name, d.name)}
-                            disabled={isGenerating}
-                            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-slate-200 hover:bg-black active:scale-95 transition-all disabled:opacity-50"
-                          >
-                            {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
-                            {isGenerating ? "جاري التعيين..." : "تعيين مدير للبلدية"}
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isManagerCreated && (
+                            <button
+                              onClick={async () => {
+                                const res = await fetch(`/api/admin/municipality-manager?baladiya=${encodeURIComponent(m.name)}`);
+                                const data = await res.json();
+                                if (data.success) {
+                                  setManagerResult(data.manager);
+                                }
+                              }}
+                              className="bg-white border border-border text-slate-600 px-4 py-2.5 rounded-xl text-[10px] font-black hover:bg-slate-50 transition-all flex items-center gap-2"
+                            >
+                              <ShieldCheck size={14} className="text-primary" />
+                              عرض بيانات الدخول
+                            </button>
+                          )}
+
+                          {!isManagerCreated && (
+                            <button
+                              onClick={() => handleBulkGenerate(m.name, d.name)}
+                              disabled={isGenerating}
+                              className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-slate-200 hover:bg-black active:scale-95 transition-all disabled:opacity-50"
+                            >
+                              {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <PlusCircle size={16} />}
+                              {isGenerating ? "جاري التعيين..." : "تعيين مدير للبلدية"}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -180,6 +208,72 @@ export default function HierarchyPage() {
           </p>
         </div>
       </div>
+
+      {/* Modern Credentials Modal */}
+      {managerResult && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setManagerResult(null)} />
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-primary p-8 text-white relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+               <button onClick={() => setManagerResult(null)} className="absolute top-6 left-6 text-white/50 hover:text-white transition-colors">
+                 <X size={24} />
+               </button>
+               <ShieldCheck size={48} className="mb-4 text-white/90" />
+               <h2 className="text-2xl font-black italic">بيانات الحساب الإداري</h2>
+               <p className="text-primary-50 text-xs font-bold mt-1 uppercase tracking-widest">بلدية {managerResult.baladiya}</p>
+            </div>
+            
+            <div className="p-8 space-y-6">
+               <div className="space-y-4">
+                  <div className="group relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">اسم المستخدم</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-primary transition-all">
+                       <AtSign size={18} className="text-slate-400" />
+                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.username}</span>
+                       <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(managerResult.username);
+                          alert("تم نسخ اسم المستخدم");
+                        }}
+                        className="text-primary hover:scale-110 transition-transform p-1"
+                       >
+                         <Copy size={16} />
+                       </button>
+                    </div>
+                  </div>
+
+                  <div className="group relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">كلمة المرور</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-primary transition-all">
+                       <Key size={18} className="text-slate-400" />
+                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.password}</span>
+                       <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(managerResult.password);
+                          alert("تم نسخ كلمة المرور");
+                        }}
+                        className="text-primary hover:scale-110 transition-transform p-1"
+                       >
+                         <Copy size={16} />
+                       </button>
+                    </div>
+                  </div>
+               </div>
+
+               <div className="pt-4">
+                  <button 
+                    onClick={() => setManagerResult(null)}
+                    className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black group overflow-hidden relative"
+                  >
+                    <span className="relative z-10">فهمت، إغلاق النافذة</span>
+                    <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  </button>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

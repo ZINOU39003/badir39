@@ -54,10 +54,27 @@ export default function DepartmentsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     if (!token || !confirm("هل أنت متأكد من حذف هذه المصلحة؟")) return;
-    await deleteDepartment(id, token);
-    refresh();
+    
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/departments/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        refresh();
+      } else {
+        alert("فشل الحذف: " + (data.message || "خطأ غير معروف"));
+      }
+    } catch (err) {
+      alert("خطأ في الاتصال بالسيرفر أثناء الحذف");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
