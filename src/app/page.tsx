@@ -168,7 +168,8 @@ export default function LandingPage() {
         }
       `}</style>
       <div className="text-center py-10 opacity-40">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">بادر 2026 - نظام الطوارئ مفعل v3.1</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">بادر 2026 - تحديث أمان v3.11</p>
+        <p className="text-[8px] font-bold text-slate-400 mb-3 opacity-50">آخر مزامنة: 11-04-2026 05:52</p>
         <Link 
           href="/about-developer" 
           className="text-[9px] font-black text-primary hover:underline transition-all"
