@@ -2,7 +2,7 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,6 +20,24 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          
+      - name: Create Flutter Project Skeleton
+        run: |
+          # Create a fresh project to get all the required boilerplate
+          flutter create --template=app --platforms=android bader_app_temp
+          
+          # Move our custom files into the temp project
+          cp -f bader_app/pubspec.yaml bader_app_temp/pubspec.yaml
+          cp -f bader_app/lib/main.dart bader_app_temp/lib/main.dart
+          cp -f bader_app/android/app/src/main/AndroidManifest.xml bader_app_temp/android/app/src/main/AndroidManifest.xml
+          
+          # Handle assets if they exist
+          mkdir -p bader_app_temp/assets
+          if [ -f bader_app/assets/logo.png ]; then cp bader_app/assets/logo.png bader_app_temp/assets/logo.png; fi
+          
+          # Move it back to bader_app
+          rm -rf bader_app
+          mv bader_app_temp bader_app
           
       - name: Get dependencies
         run: flutter pub get
