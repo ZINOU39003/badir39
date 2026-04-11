@@ -55,8 +55,13 @@ export default function ReportPage() {
     }
     setLoadingDeps(true);
     getDepartments().then((all) => {
-      // Filter by baladiya name
-      const filtered = all.filter(d => d.baladiya === selectedBaladiya);
+      // Normalize comparison (Remove "بلدية" and trim spaces)
+      const cleanSelection = selectedBaladiya.replace("بلدية", "").trim();
+      const filtered = all.filter(d => {
+        const dBaladiyaClean = (d.baladiya || "").replace("بلدية", "").trim();
+        return dBaladiyaClean === cleanSelection;
+      });
+      
       setDepartments(filtered);
       if (filtered.length > 0) {
         setAssignedDept(filtered[0].organization);
@@ -66,9 +71,13 @@ export default function ReportPage() {
     }).finally(() => setLoadingDeps(false));
   }, [selectedBaladiya]);
 
+  // Auto-detect location on mount
+  useEffect(() => {
+    detectLocation();
+  }, []);
+
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      alert("متصفحك لا يدعم تحديد الموقع");
       return;
     }
     setIsLocating(true);
