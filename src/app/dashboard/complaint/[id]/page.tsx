@@ -43,6 +43,7 @@ export default function ComplaintDetailPage() {
   
   const [reporter, setReporter] = useState<AuthUser | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const loadComplaint = useCallback(async () => {
     if (!user) return;
@@ -207,7 +208,7 @@ export default function ComplaintDetailPage() {
                      <div 
                        key={idx} 
                        className="aspect-video relative rounded-2xl overflow-hidden border border-border group cursor-zoom-in shadow-sm hover:shadow-md transition-all"
-                       onClick={() => window.open(url, '_blank')}
+                       onClick={() => setSelectedImage(url)}
                      >
                         <img 
                           src={url} 
@@ -409,6 +410,28 @@ export default function ComplaintDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Image Modal overlay */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center">
+            <button 
+               className="absolute -top-12 right-0 text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+               onClick={() => setSelectedImage(null)}
+            >
+              <ArrowRight size={24} className="rotate-180" />
+            </button>
+            <img 
+               src={selectedImage} 
+               alt="Enlarged view" 
+               className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300" 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
