@@ -21,23 +21,29 @@ jobs:
         with:
           channel: 'stable'
           
-      - name: Create Flutter Project Skeleton
+      - name: Create and Configure Project
         run: |
-          # Create a fresh project to get all the required boilerplate
-          flutter create --template=app --platforms=android bader_app_temp
+          # 1. Create fresh project with unique package name
+          flutter create --template=app --platforms=android --org com.bader bader_app_new
           
-          # Move our custom files into the temp project
-          cp -f bader_app/pubspec.yaml bader_app_temp/pubspec.yaml
-          cp -f bader_app/lib/main.dart bader_app_temp/lib/main.dart
-          cp -f bader_app/android/app/src/main/AndroidManifest.xml bader_app_temp/android/app/src/main/AndroidManifest.xml
+          # 2. Inject permissions into the clean AndroidManifest.xml
+          # We insert permissions before the <application> tag
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />' bader_app_new/android/app/src/main/AndroidManifest.xml
           
-          # Handle assets if they exist
-          mkdir -p bader_app_temp/assets
-          if [ -f bader_app/assets/logo.png ]; then cp bader_app/assets/logo.png bader_app_temp/assets/logo.png; fi
+          # 3. Update app label
+          sed -i 's/android:label="bader_app_new"/android:label="بادر"/g' bader_app_new/android/app/src/main/AndroidManifest.xml
           
-          # Move it back to bader_app
+          # 4. Copy our custom logic
+          cp -f bader_app/pubspec.yaml bader_app_new/pubspec.yaml
+          cp -f bader_app/lib/main.dart bader_app_new/lib/main.dart
+          
+          # 5. Handle assets
+          mkdir -p bader_app_new/assets
+          if [ -d bader_app/assets ]; then cp -r bader_app/assets/* bader_app_new/assets/ || true; fi
+          
+          # 6. Replace old folder with the new perfectly configured one
           rm -rf bader_app
-          mv bader_app_temp bader_app
+          mv bader_app_new bader_app
           
       - name: Get dependencies
         run: flutter pub get
