@@ -166,6 +166,9 @@ export default function LandingPage() {
           to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
+      <div className="text-center py-10 opacity-40">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">بادر 2026 - نظام الطوارئ مفعل v2.5</p>
+      </div>
     </div>
   );
 }

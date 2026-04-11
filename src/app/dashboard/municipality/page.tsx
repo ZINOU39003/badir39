@@ -226,13 +226,12 @@ export default function MunicipalityManagerPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* قطاعات افتراضية */}
         {STANDARD_SECTORS.map((sector) => {
           const dept = stats[sector.name];
           const isEnabled = !!dept;
           const isActing = loading[sector.name];
+          const Icon = sectorIcons[sector.id] || Building2;
 
-const Icon = sectorIcons[sector.id] || Building2;
           return (
             <div key={sector.id} className="bg-surface rounded-3xl border border-border p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
               <div className="flex items-start justify-between mb-6">
