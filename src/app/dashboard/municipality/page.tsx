@@ -221,6 +221,7 @@ export default function MunicipalityManagerPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* قطاعات افتراضية */}
         {STANDARD_SECTORS.map((sector) => {
           const dept = stats[sector.name];
           const isEnabled = !!dept;
@@ -257,6 +258,35 @@ export default function MunicipalityManagerPage() {
             </div>
           );
         })}
+
+        {/* قطاعات مخصصة غير موجودة في القائمة الافتراضية */}
+        {Object.keys(stats)
+          .filter(orgName => !STANDARD_SECTORS.some(s => s.name === orgName))
+          .map((orgName) => {
+            const dept = stats[orgName];
+            return (
+              <div key={dept.id} className="bg-surface rounded-3xl border border-border p-6 shadow-sm hover:shadow-md border-primary/20 bg-primary/5 transition-all group relative overflow-hidden">
+                <div className="absolute top-3 right-3 bg-primary text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase">مصلحة مخصصة</div>
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border border-primary/20 text-primary shadow-sm hover:rotate-12 transition-transform">
+                    <Building2 size={28} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleDeleteDept(dept.id, orgName)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                      <Trash2 size={18} />
+                    </button>
+                    <CheckCircle2 size={18} className="text-emerald-500" />
+                  </div>
+                </div>
+                <h3 className="font-black text-slate-800 text-lg mb-1">{dept.organization}</h3>
+                <p className="text-[10px] text-muted-foreground font-bold mb-6">{dept.full_name}</p>
+                <button onClick={() => handleFetchManager(orgName)} className="w-full h-11 bg-white border border-primary/30 rounded-xl text-[11px] font-black hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm">
+                  <Settings2 size={14} />
+                  إدارة المصلحة
+                </button>
+              </div>
+            );
+          })}
       </div>
 
       {showAddModal && (
