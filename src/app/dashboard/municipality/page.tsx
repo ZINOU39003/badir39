@@ -20,7 +20,8 @@ import {
   RefreshCw,
   ShieldCheck,
   Plus,
-  ShieldAlert
+  ShieldAlert,
+  Lightbulb
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ const sectorIcons: Record<string, any> = {
   roads: Building2,
   health: Building2,
   education: Building2,
+  lighting: Lightbulb,
   protection: ShieldAlert,
 };
 
@@ -230,11 +232,12 @@ export default function MunicipalityManagerPage() {
           const isEnabled = !!dept;
           const isActing = loading[sector.name];
 
+const Icon = sectorIcons[sector.id] || Building2;
           return (
             <div key={sector.id} className="bg-surface rounded-3xl border border-border p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
               <div className="flex items-start justify-between mb-6">
                 <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-border text-primary group-hover:scale-110 transition-transform">
-                  <Building2 size={28} />
+                  <Icon size={28} />
                 </div>
                 <div className="flex items-center gap-2">
                    {isEnabled && (
