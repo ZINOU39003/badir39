@@ -25,6 +25,8 @@ export const viewport = {
   userScalable: false,
 };
 
+import { SWRegistration } from "@/components/sw-registration";
+
 export default function RootLayout({
   children,
 }: {
@@ -33,7 +35,10 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className="font-cairo antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <SWRegistration />
+        </AuthProvider>
       </body>
     </html>
   );
