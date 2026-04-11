@@ -14,11 +14,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const { full_name, organization } = await req.json();
+    const { full_name, organization, phone } = await req.json();
 
     await pool.execute(
-      "UPDATE users SET full_name = ?, organization = ? WHERE id = ? AND role = 'department'",
-      [full_name, organization, id]
+      "UPDATE users SET full_name = ?, organization = ?, phone = ? WHERE id = ? AND role = 'department'",
+      [full_name, organization, phone, id]
     );
 
     return NextResponse.json({ success: true, message: "تم تحديث بيانات المصلحة بنجاح" });

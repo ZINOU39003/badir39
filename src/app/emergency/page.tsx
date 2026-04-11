@@ -11,7 +11,8 @@ import {
   ArrowRight,
   Loader2,
   CheckCircle2,
-  X
+  X,
+  ShieldCheck
 } from "lucide-react";
 import { getNearestUnit, CivilProtectionUnit } from "@/lib/civil-protection-data";
 import { cn } from "@/lib/utils";
@@ -258,6 +259,17 @@ export default function EmergencyPage() {
               </button>
             )}
           </div>
+
+          {/* Target Unit Feedback */}
+          {nearestUnit && (
+            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 animate-in slide-in-from-top-2 duration-500">
+               <p className="text-[10px] font-black text-red-400 uppercase mb-1">جهة الاستلام المستهدفة</p>
+               <div className="flex items-center gap-2 text-red-700">
+                  <ShieldCheck size={18} />
+                  <p className="text-sm font-black">{nearestUnit.name}</p>
+               </div>
+            </div>
+          )}
 
           <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-red-600 shadow-sm shrink-0">

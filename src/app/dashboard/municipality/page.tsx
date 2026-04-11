@@ -56,7 +56,7 @@ export default function MunicipalityManagerPage() {
   
   const [managerResult, setManagerResult] = useState<any | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState({ username: "", password: "", full_name: "", organization: "" });
+  const [editForm, setEditForm] = useState({ username: "", password: "", full_name: "", organization: "", phone: "" });
   const [saving, setSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSectForm, setNewSectForm] = useState({ name: "" });
@@ -145,6 +145,13 @@ export default function MunicipalityManagerPage() {
       const data = await res.json();
       if (data.success) {
         setManagerResult({ ...data.manager, sector: sectorName, id: stats[sectorName]?.id });
+        setEditForm({
+          username: data.manager.username || "",
+          password: data.manager.password || "",
+          full_name: data.manager.full_name || "",
+          organization: sectorName || "",
+          phone: data.manager.phone || ""
+        });
         setEditMode(false);
       } else {
         alert("فشل جلب البيانات: " + data.message);
@@ -177,7 +184,8 @@ export default function MunicipalityManagerPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               full_name: editForm.full_name,
-              organization: editForm.organization
+              organization: editForm.organization,
+              phone: editForm.phone
             })
          });
       }
@@ -346,6 +354,10 @@ export default function MunicipalityManagerPage() {
                         <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">قطاع العمل (النوع)</label>
                         <input value={editForm.organization} onChange={e => setEditForm({...editForm, organization: e.target.value})} className="bg-slate-50 border border-border p-3.5 rounded-2xl font-black text-xs w-full" />
                       </div>
+                      <div className="col-span-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">رقم الهاتف الرسمي</label>
+                        <input value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} placeholder="06 00 00 00 00" className="bg-slate-50 border border-border p-3.5 rounded-2xl font-black text-xs w-full" dir="ltr" />
+                      </div>
                     </>
                   )}
                </div>
@@ -353,7 +365,7 @@ export default function MunicipalityManagerPage() {
                   {editMode ? (
                     <button onClick={handleUpdateCreds} disabled={saving} className="w-full h-14 bg-amber-600 text-white rounded-2xl font-black shadow-lg">حفظ التعديلات</button>
                   ) : (
-                    <button onClick={() => { setEditForm({ username: managerResult.username, password: managerResult.password, full_name: managerResult.full_name || stats[managerResult.sector]?.full_name || "", organization: managerResult.sector }); setEditMode(true); }} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black shadow-lg">تعديل بيانات المصلحة</button>
+                    <button onClick={() => { setEditForm({ username: managerResult.username, password: managerResult.password, full_name: managerResult.full_name || stats[managerResult.sector]?.full_name || "", organization: managerResult.sector, phone: managerResult.phone || stats[managerResult.sector]?.phone || "" }); setEditMode(true); }} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black shadow-lg">تعديل بيانات المصلحة</button>
                   )}
                   <button onClick={() => { if(editMode) setEditMode(false); else setManagerResult(null); }} className="w-full h-12 text-slate-400 font-bold text-xs">إغلاق</button>
                </div>

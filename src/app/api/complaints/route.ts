@@ -54,6 +54,8 @@ export async function POST(req: Request) {
       district, municipality 
     } = body;
 
+    console.log("Creating complaint with payload:", JSON.stringify(body, null, 2));
+
     await pool.execute(
       `INSERT INTO complaints (id, title, description, location_text, lat, lng, category, reporter_id, assigned_dept, media_urls, district, municipality)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -66,6 +68,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, message: "Complaint created successfully" });
   } catch (error: any) {
+    console.error("COMPLAINT_API_ERROR:", error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
