@@ -168,8 +168,7 @@ export default function LandingPage() {
         }
       `}</style>
       <div className="text-center py-10 opacity-40">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">بادر 2026 - تحديث v3.111</p>
-        <p className="text-[8px] font-bold text-slate-400 mb-3 opacity-50">آخر مزامنة: 11-04-2026 05:52</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">بادر 2026 - تحديث الجوال والإشعارات v4.0</p>
         <Link 
           href="/about-developer" 
           className="text-[9px] font-black text-primary hover:underline transition-all"

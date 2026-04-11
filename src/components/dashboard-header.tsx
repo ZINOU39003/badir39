@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context";
-import { Bell, Search, User as UserIcon, LogOut } from "lucide-react";
+import { Bell, Search, User as UserIcon, LogOut, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -10,6 +10,40 @@ export function DashboardHeader() {
   const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const subscribeToNotifications = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    
+    setIsSubscribing(true);
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        const registration = await navigator.serviceWorker.ready;
+        // Public VAPID key placeholder - in a real app this would be in env vars
+        const subscribeOptions = {
+          userVisibleOnly: true,
+          applicationServerKey: 'BEl62vp9IHZbtas_x1Gq5G8YF0hy4S8iL7E6fQ1nFpX' // Placeholder key
+        };
+
+        const subscription = await registration.pushManager.subscribe(subscribeOptions);
+        
+        await fetch('/api/push-subscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription, userId: user?.id })
+        });
+        
+        setIsSubscribed(true);
+        alert("تم تفعيل الإشعارات بنجاح!");
+      }
+    } catch (error) {
+      console.error("Subscription failed:", error);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   // Mock notifications
   const notifications = [
@@ -33,7 +67,22 @@ export function DashboardHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Push Notification Toggle */}
+        <button 
+          onClick={subscribeToNotifications}
+          disabled={isSubscribed || isSubscribing}
+          title="تفعيل إشعارات الهاتف"
+          className={cn(
+            "w-10 h-10 rounded-xl border flex items-center justify-center transition-all",
+            isSubscribed 
+              ? "bg-emerald-50 border-emerald-100 text-emerald-600" 
+              : "bg-background border-border text-muted-foreground hover:text-primary hover:border-primary/30"
+          )}
+        >
+          {isSubscribing ? <Loader2 size={18} className="animate-spin" /> : <Bell size={20} />}
+        </button>
+
         {/* Notification Bell */}
         <div className="relative">
           <button 

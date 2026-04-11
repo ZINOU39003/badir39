@@ -164,7 +164,7 @@ export function Sidebar() {
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-surface rounded-xl shadow-lg border border-border"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-surface rounded-xl shadow-lg border border-border text-primary"
       >
         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
