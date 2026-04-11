@@ -24,10 +24,11 @@ export default function AdminPage() {
       if (user?.role === "admin") {
         data = await getAdminComplaints();
       } else if (user?.role === "department") {
-        // Enforce isolation for department users
+        // Isolation: Managers see all in their baladiya, specific services see only their reports
         data = await getAdminComplaints({ 
           daira: user.daira, 
-          baladiya: user.baladiya 
+          baladiya: user.baladiya,
+          dept: user.is_manager ? undefined : user.organization
         });
       }
       setComplaints(data);

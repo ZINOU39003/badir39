@@ -195,6 +195,34 @@ export default function ComplaintDetailPage() {
               {complaint.description}
             </p>
 
+            {/* Attachments Section */}
+            {complaint.media_urls && complaint.media_urls.length > 0 && (
+              <div className="mb-8 space-y-4">
+                <h3 className="text-sm font-black flex items-center gap-2 text-primary uppercase tracking-wider">
+                  <FileText size={16} />
+                  الصور والمرفقات ({complaint.media_urls.length})
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {complaint.media_urls.map((url, idx) => (
+                     <div 
+                       key={idx} 
+                       className="aspect-video relative rounded-2xl overflow-hidden border border-border group cursor-zoom-in shadow-sm hover:shadow-md transition-all"
+                       onClick={() => window.open(url, '_blank')}
+                     >
+                        <img 
+                          src={url} 
+                          alt={`Attachment ${idx + 1}`} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                           <span className="text-white text-[10px] font-black uppercase">عرض الصورة</span>
+                        </div>
+                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-background rounded-xl border border-border/50">
               <InfoItem icon={Calendar} label="تاريخ التقديم" value={formatDate(complaint.created_at)} />
               <InfoItem icon={Building2} label="المصلحة" value={complaint.assigned_dept || "قيد التوجيه"} />

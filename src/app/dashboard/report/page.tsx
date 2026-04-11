@@ -156,8 +156,14 @@ export default function ReportPage() {
     setError("");
 
     try {
-      // Mocking image upload
-      const mediaUrls = images.map((_, i) => `https://placehold.co/600x400?text=Image+${i+1}`);
+      // Convert images to Base64 for storage
+      const mediaUrls = await Promise.all(
+        images.map(img => new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(img.file);
+        }))
+      );
 
       await createComplaint({
         title: title.trim(),
