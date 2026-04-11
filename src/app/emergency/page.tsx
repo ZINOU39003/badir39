@@ -76,6 +76,10 @@ export default function EmergencyPage() {
 
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve) => {
+      if (typeof window === "undefined") {
+        resolve("");
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (e) => {

@@ -230,7 +230,7 @@ export default function MunicipalityManagerPage() {
           const dept = stats[sector.name];
           const isEnabled = !!dept;
           const isActing = loading[sector.name];
-          const Icon = sectorIcons[sector.id] || Building2;
+          const Icon = (sectorIcons as any)[sector.id] || Building2;
 
           return (
             <div key={sector.id} className="bg-surface rounded-3xl border border-border p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
