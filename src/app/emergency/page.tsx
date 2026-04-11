@@ -1,0 +1,225 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { 
+  ShieldAlert, 
+  Camera, 
+  MapPin, 
+  Send, 
+  Phone, 
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  X
+} from "lucide-react";
+import { getNearestUnit, CivilProtectionUnit } from "@/lib/civil-protection-data";
+import { cn } from "@/lib/utils";
+
+export default function EmergencyPage() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [locationText, setLocationText] = useState("جاري تحديد موقعك...");
+  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [municipality, setMunicipality] = useState("");
+  const [image, setImage] = useState<{file: File, preview: string} | null>(null);
+  const [description, setDescription] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [nearestUnit, setNearestUnit] = useState<CivilProtectionUnit | null>(null);
+
+  useEffect(() => {
+    detectLocation();
+  }, []);
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) return;
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      setCoords({ lat: latitude, lng: longitude });
+      
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=ar`);
+        const data = await res.json();
+        const address = data.address;
+        const city = address.city || address.town || address.village || "";
+        setMunicipality(city);
+        setLocationText(data.display_name);
+        
+        // Find nearest unit
+        const unit = getNearestUnit(city);
+        if (unit) setNearestUnit(unit);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLocating(false);
+      }
+    }, () => {
+      setIsLocating(false);
+      setLocationText("تعذر تحديد الموقع تلقائياً");
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage({
+        file,
+        preview: URL.createObjectURL(file)
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    
+    // Simulate emergency transmission
+    setTimeout(() => {
+      setSending(false);
+      setSuccess(true);
+    }, 2000);
+  };
+
+  if (success && nearestUnit) {
+    return (
+      <div className="min-h-screen bg-red-600 flex items-center justify-center p-6 text-white">
+        <div className="max-w-md w-full bg-white text-slate-900 rounded-[2.5rem] p-8 text-center shadow-2xl animate-in zoom-in-95 duration-500">
+          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={48} />
+          </div>
+          <h1 className="text-2xl font-black mb-2">تم استلام بلاغك!</h1>
+          <p className="text-slate-600 font-bold mb-8">
+            تم توجيه الاستغاثة إلى {nearestUnit.name}
+          </p>
+          
+          <div className="bg-red-50 border border-red-100 rounded-2xl p-6 mb-8">
+            <p className="text-red-600 text-xs font-black uppercase mb-1">رقم الطوارئ المباشر</p>
+            <p className="text-3xl font-black text-red-700 tracking-wider mb-4" dir="ltr">
+              {nearestUnit.phone}
+            </p>
+            <a 
+              href={`tel:${nearestUnit.phone}`}
+              className="flex items-center justify-center gap-3 w-full h-16 bg-red-600 text-white rounded-xl font-black text-lg hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+            >
+              <Phone size={24} fill="currentColor" />
+              اتصل الآن
+            </a>
+          </div>
+          
+          <button 
+            onClick={() => router.push("/")}
+            className="text-slate-400 font-bold text-sm hover:text-slate-600"
+          >
+            العودة للرئيسية
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#ba0000] flex flex-col">
+      {/* Urgent Header */}
+      <div className="p-6 flex items-center justify-between text-white">
+        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all">
+          <ArrowRight size={24} />
+        </button>
+        <div className="flex items-center gap-2">
+          <ShieldAlert size={28} className="animate-pulse" />
+          <h1 className="text-xl font-black">طوارئ الحماية المدنية</h1>
+        </div>
+        <div className="w-10 h-10" /> {/* Spacer */}
+      </div>
+
+      <div className="flex-1 bg-white rounded-t-[3rem] p-8 shadow-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
+          <div className="text-center space-y-2 mb-8">
+            <h2 className="text-2xl font-black text-red-700">تقديم بلاغ مستعجل</h2>
+            <p className="text-slate-500 font-bold text-sm">سرعة البلاغ تساهم في إنقاذ الأرواح</p>
+          </div>
+
+          {/* Quick Photo */}
+          <div className="space-y-3">
+            <label className="block text-sm font-black text-slate-700 px-1">صورة الحادث (مهم جداً)</label>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              capture="environment" 
+              className="hidden" 
+            />
+            
+            {image ? (
+              <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-red-100">
+                <img src={image.preview} alt="Preview" className="w-full h-full object-cover" />
+                <button 
+                  type="button" 
+                  onClick={() => setImage(null)}
+                  className="absolute top-4 left-4 bg-red-600 text-white rounded-full p-2"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full aspect-video bg-red-50 border-4 border-dashed border-red-200 rounded-3xl flex flex-col items-center justify-center text-red-600 hover:bg-red-100 transition-all group"
+              >
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-sm">
+                  <Camera size={32} />
+                </div>
+                <span className="font-black">افتح الكاميرا وصوّر الحادث</span>
+              </button>
+            )}
+          </div>
+
+          {/* Location Bar */}
+          <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-red-600 shadow-sm shrink-0">
+              {isLocating ? <Loader2 size={24} className="animate-spin" /> : <MapPin size={24} />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black text-slate-400 uppercase">موقعك الحالي</p>
+              <p className="text-sm font-bold text-slate-700 truncate">{locationText}</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-black text-slate-700 mb-2 px-1">تفاصيل إضافية (اختياري)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="مثال: حادث تصادم، حالة إغماء..."
+              rows={3}
+              className="w-full p-4 rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-sm focus:border-red-500 transition-all resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={sending || !image}
+            className={cn(
+              "w-full h-16 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl",
+              image ? "bg-red-600 text-white hover:bg-red-700 shadow-red-200" : "bg-slate-200 text-slate-400 cursor-not-allowed"
+            )}
+          >
+            {sending ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : (
+              <>
+                <Send size={24} />
+                إرسال استغاثة فورية
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
