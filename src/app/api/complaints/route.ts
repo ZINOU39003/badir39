@@ -36,9 +36,15 @@ export async function GET(req: Request) {
 
     const [rows]: any = await pool.execute(query, params);
 
+    // Parse media_urls for each complaint
+    const parsedRows = rows.map((row: any) => ({
+      ...row,
+      media_urls: typeof row.media_urls === 'string' ? JSON.parse(row.media_urls) : (row.media_urls || [])
+    }));
+
     return NextResponse.json({
       success: true,
-      data: { items: rows }
+      data: { items: parsedRows }
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });

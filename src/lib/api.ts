@@ -111,7 +111,7 @@ export async function createComplaint(payload: {
     lat: payload.lat,
     lng: payload.lng,
     category: payload.category,
-    reporter_id: payload.reporter_id || "0",
+    reporter_id: payload.reporter_id || null, // Changed from "0" to null
     assigned_dept: payload.assigned_dept,
     media_urls: payload.media_urls || [],
     district: payload.district,
