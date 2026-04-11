@@ -77,27 +77,34 @@ export default function ReportPage() {
       setCoords({ lat: latitude, lng: longitude });
       
       try {
-        // Reverse geocoding using Nominatim (OpenStreetMap)
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&accept-language=ar`);
+        // Reverse geocoding with high zoom (18) for pinpoint details
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=ar`);
         const data = await res.json();
         const address = data.address;
-        const placeName = address.city || address.town || address.village || address.suburb || "";
         
-        // Match with our Baladiya list
-        const matched = WILAYA_STRUCTURE.flatMap(d => d.municipalities).find(m => 
-          placeName.includes(m.name.replace("بلدية", "").trim()) || m.name.includes(placeName)
-        );
+        // Detailed Location Text (Neighborhood + Road + City)
+        const neighborhood = address.neighborhood || address.suburb || address.residential || "";
+        const road = address.road || "";
+        const city = address.city || address.town || address.village || "";
+        
+        const detailedText = [neighborhood, road, city].filter(Boolean).join("، ");
+        setLocationText(detailedText || data.display_name);
+
+        // Match with our Baladiya list (robust matching)
+        const matched = WILAYA_STRUCTURE.flatMap(d => d.municipalities).find(m => {
+          const mNameClean = m.name.replace("بلدية", "").trim();
+          const placeNameClean = (city || data.display_name).trim();
+          return placeNameClean.includes(mNameClean) || mNameClean.includes(placeNameClean);
+        });
 
         if (matched) {
           const parentDaira = WILAYA_STRUCTURE.find(d => d.municipalities.some(m => m.id === matched.id));
           if (parentDaira) {
             setSelectedDaira(parentDaira.name);
             setSelectedBaladiya(matched.name);
-            setLocationText(data.display_name);
           }
         } else {
-          setLocationText(data.display_name);
-          alert("تم تحديد موقعك، يرجى اختيار البلدية يدوياً من القائمة");
+          alert("تم تحديد إحداثياتك بدقة، يرجى اختيار البلدية يدوياً لتوجيه البلاغ");
         }
       } catch (err) {
         console.error("Geocoding error", err);
@@ -310,17 +317,30 @@ export default function ReportPage() {
               </div>
 
               <div className="space-y-2 pt-2">
-                <label className="block text-sm font-bold text-foreground px-1 flex items-center gap-2">
-                  <MapPin size={16} className="text-red-500" />
-                  العنوان الدقيق
+                <label className="block text-sm font-bold text-foreground px-1 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin size={16} className="text-red-500" />
+                    العنوان الدقيق
+                  </div>
+                  {coords && (
+                    <span className="text-[10px] font-mono text-muted-foreground bg-slate-100 px-2 py-0.5 rounded-md" dir="ltr">
+                      {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                    </span>
+                  )}
                 </label>
                 <input
                   type="text"
                   value={locationText}
                   onChange={(e) => setLocationText(e.target.value)}
-                  placeholder="مثال: حي الرمال، بالقرب من..."
+                  placeholder="حي الرمال، بالقرب من..."
                   className="w-full h-12 px-4 rounded-xl border border-border bg-background text-xs font-bold focus:border-primary transition-all"
                 />
+                {coords && (
+                  <p className="text-[9px] text-emerald-600 font-bold px-1 mt-1 flex items-center gap-1">
+                    <CheckCircle2 size={10} />
+                    تم ضبط الإحداثيات الجغرافية بدقة عالية
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3 pt-2">

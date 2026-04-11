@@ -28,7 +28,10 @@ import {
   Truck,
   Heart,
   Gamepad2,
-  Lightbulb
+  Lightbulb,
+  Settings2,
+  Edit3,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,9 +57,13 @@ const sectorIcons: Record<string, any> = {
 export default function MunicipalityManagerPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [fetching, setFetching] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState<Record<string, boolean>>({});
   const [initLoading, setInitLoading] = useState(true);
   const [managerResult, setManagerResult] = useState<{username: string, password: string, sector: string} | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ username: "", password: "" });
+  const [saving, setSaving] = useState(false);
 
   const fetchLocalStats = async () => {
     if (!user?.baladiya) return;
@@ -104,6 +111,7 @@ export default function MunicipalityManagerPage() {
           password: data.manager.password,
           sector: sectorName
         });
+        setEditMode(false);
       } else {
         alert("فشل التفعيل: " + data.message);
       }
@@ -111,6 +119,53 @@ export default function MunicipalityManagerPage() {
       alert("خطأ في الاتصال");
     } finally {
       setLoading(prev => ({ ...prev, [sectorName]: false }));
+    }
+  };
+
+  const handleFetchManager = async (sectorName: string) => {
+    setFetching(prev => ({ ...prev, [sectorName]: true }));
+    try {
+      const res = await fetch(`/api/admin/municipality-manager?baladiya=${encodeURIComponent(user?.baladiya || "")}&organization=${encodeURIComponent(sectorName)}`);
+      const data = await res.json();
+      if (data.success) {
+        setManagerResult({ ...data.manager, sector: sectorName });
+        setEditMode(false);
+      } else {
+        alert("فشل جلب البيانات: " + data.message);
+      }
+    } catch {
+      alert("خطأ في الاتصال");
+    } finally {
+      setFetching(prev => ({ ...prev, [sectorName]: false }));
+    }
+  };
+
+  const handleUpdateCreds = async () => {
+    if (!managerResult) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/municipality-manager", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: editForm.username,
+          password: editForm.password,
+          baladiya: user?.baladiya,
+          organization: managerResult.sector
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("تم التحديث بنجاح");
+        setManagerResult(null);
+        setEditMode(false);
+      } else {
+        alert("فشل التحديث: " + data.message);
+      }
+    } catch {
+      alert("خطأ في الاتصال");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -213,8 +268,18 @@ export default function MunicipalityManagerPage() {
               )}
 
               {isEnabled && (
-                <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-default">
-                  تم التفعيل بنجاح
+                <div className="space-y-2">
+                  <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 h-10 rounded-xl font-black text-[10px] uppercase tracking-widest cursor-default">
+                    تم التفعيل
+                  </div>
+                  <button
+                    disabled={fetching[sector.name]}
+                    onClick={() => handleFetchManager(sector.name)}
+                    className="w-full h-10 border border-border rounded-xl text-[10px] font-black hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-slate-600"
+                  >
+                    {fetching[sector.name] ? <Loader2 size={14} className="animate-spin" /> : <Settings2 size={14} />}
+                    {fetching[sector.name] ? "جاري الجلب..." : "إدارة الحساب"}
+                  </button>
                 </div>
               )}
             </div>
@@ -222,70 +287,101 @@ export default function MunicipalityManagerPage() {
         })}
       </div>
 
-      {/* Credentials Modal */}
+      {/* Credentials Management Modal */}
       {managerResult && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setManagerResult(null)} />
           <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-emerald-600 p-8 text-white relative overflow-hidden">
+            <div className={cn(
+               "p-8 text-white relative overflow-hidden transition-colors duration-500",
+               editMode ? "bg-amber-600" : "bg-emerald-600"
+            )}>
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
                <button onClick={() => setManagerResult(null)} className="absolute top-6 left-6 text-white/50 hover:text-white transition-colors">
                  <X size={24} />
                </button>
-               <CheckCircle2 size={48} className="mb-4 text-white/90" />
-               <h2 className="text-2xl font-black italic">تم تفعيل المصلحة بنجاح</h2>
-               <p className="text-emerald-50 text-xs font-bold mt-1 uppercase tracking-widest">{managerResult.sector}</p>
+               {editMode ? <Edit3 size={48} className="mb-4 text-white/90" /> : <CheckCircle2 size={48} className="mb-4 text-white/90" />}
+               <h2 className="text-2xl font-black italic">{editMode ? "تحديث بيانات الحساب" : "بيانات الدخول الحالية"}</h2>
+               <p className="text-white/70 text-xs font-bold mt-1 uppercase tracking-widest">{managerResult.sector}</p>
             </div>
             
             <div className="p-8 space-y-6">
                <div className="space-y-4">
                   <div className="group relative">
-                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">اسم المستخدم للمصلحة</label>
-                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-emerald-500 transition-all">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">اسم المستخدم</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-primary transition-all">
                        <AtSign size={18} className="text-slate-400" />
-                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.username}</span>
-                       <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(managerResult.username);
-                          alert("تم نسخ اسم المستخدم");
-                        }}
-                        className="text-emerald-600 hover:scale-110 transition-transform p-1"
-                       >
-                         <Copy size={16} />
-                       </button>
+                       {editMode ? (
+                          <input 
+                            value={editForm.username}
+                            onChange={e => setEditForm(p => ({...p, username: e.target.value}))}
+                            className="bg-transparent border-none outline-none font-black text-slate-800 tracking-wider flex-1"
+                            dir="ltr"
+                          />
+                       ) : (
+                          <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.username}</span>
+                       )}
+                       {!editMode && (
+                        <button onClick={() => { navigator.clipboard.writeText(managerResult.username); alert("تم النسخ"); }} className="text-emerald-600 hover:scale-110 transition-transform p-1">
+                          <Copy size={16} />
+                        </button>
+                       )}
                     </div>
                   </div>
 
                   <div className="group relative">
-                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">كلمة المرور الافتراضية</label>
-                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-emerald-500 transition-all">
+                    <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">كلمة المرور</label>
+                    <div className="flex items-center gap-3 bg-slate-50 border border-border p-4 rounded-2xl group-hover:border-primary transition-all">
                        <Key size={18} className="text-slate-400" />
-                       <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.password}</span>
-                       <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(managerResult.password);
-                          alert("تم نسخ كلمة المرور");
-                        }}
-                        className="text-emerald-600 hover:scale-110 transition-transform p-1"
-                       >
-                         <Copy size={16} />
-                       </button>
+                       {editMode ? (
+                          <input 
+                            value={editForm.password}
+                            onChange={e => setEditForm(p => ({...p, password: e.target.value}))}
+                            className="bg-transparent border-none outline-none font-black text-slate-800 tracking-wider flex-1"
+                            dir="ltr"
+                          />
+                       ) : (
+                          <span className="font-black text-slate-800 tracking-wider flex-1" dir="ltr">{managerResult.password}</span>
+                       )}
+                       {!editMode && (
+                        <button onClick={() => { navigator.clipboard.writeText(managerResult.password); alert("تم النسخ"); }} className="text-emerald-600 hover:scale-110 transition-transform p-1">
+                          <Copy size={16} />
+                        </button>
+                       )}
                     </div>
                   </div>
                </div>
 
-               <p className="text-[10px] text-slate-400 text-center font-bold px-4">
-                 يرجى منح هذه البيانات للموظف المسؤول عن هذه المصلحة ليتمكن من الدخول للمنصة.
-               </p>
-
-               <div className="pt-2">
-                  <button 
-                    onClick={() => setManagerResult(null)}
-                    className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black group overflow-hidden relative"
-                  >
-                    <span className="relative z-10">إتمام التفعيل</span>
-                    <div className="absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                  </button>
+               <div className="flex flex-col gap-3">
+                  {editMode ? (
+                    <button 
+                      onClick={handleUpdateCreds}
+                      disabled={saving}
+                      className="w-full h-14 bg-amber-600 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-amber-700 transition-all"
+                    >
+                      {saving ? <Loader2 size={20} className="animate-spin" /> : <RefreshCw size={20} />}
+                      حفظ التغييرات
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        setEditForm({ username: managerResult.username, password: managerResult.password });
+                        setEditMode(true);
+                      }}
+                      className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all"
+                    >
+                      تغيير معلومات الدخول
+                    </button>
+                  )}
+                  
+                  {editMode && (
+                    <button 
+                      onClick={() => setEditMode(false)}
+                      className="w-full h-10 text-slate-400 font-bold hover:text-slate-600 transition-all"
+                    >
+                      تراجع
+                    </button>
+                  )}
                </div>
             </div>
           </div>

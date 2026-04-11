@@ -16,12 +16,14 @@ import {
   X,
   AtSign,
   Key,
-  Copy
+  Copy,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function HierarchyPage() {
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [fetchingCreds, setFetchingCreds] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState("");
   const [stats, setStats] = useState<Record<string, number>>({});
@@ -161,17 +163,31 @@ export default function HierarchyPage() {
                         <div className="flex items-center gap-2">
                           {isManagerCreated && (
                             <button
+                              disabled={fetchingCreds[m.name]}
                               onClick={async () => {
-                                const res = await fetch(`/api/admin/municipality-manager?baladiya=${encodeURIComponent(m.name)}`);
-                                const data = await res.json();
-                                if (data.success) {
-                                  setManagerResult(data.manager);
+                                setFetchingCreds(p => ({...p, [m.name]: true}));
+                                try {
+                                  const res = await fetch(`/api/admin/municipality-manager?baladiya=${encodeURIComponent(m.name)}`);
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    setManagerResult(data.manager);
+                                  } else {
+                                    alert("لم يتم العثور على بيانات المدير: " + data.message);
+                                  }
+                                } catch {
+                                  alert("خطأ في الاتصال بالسيرفر");
+                                } finally {
+                                  setFetchingCreds(p => ({...p, [m.name]: false}));
                                 }
                               }}
-                              className="bg-white border border-border text-slate-600 px-4 py-2.5 rounded-xl text-[10px] font-black hover:bg-slate-50 transition-all flex items-center gap-2"
+                              className="bg-white border border-border text-slate-600 px-4 py-2.5 rounded-xl text-[10px] font-black hover:bg-slate-50 transition-all flex items-center gap-2 disabled:opacity-50"
                             >
-                              <ShieldCheck size={14} className="text-primary" />
-                              عرض بيانات الدخول
+                              {fetchingCreds[m.name] ? (
+                                <Loader2 size={14} className="animate-spin text-primary" />
+                              ) : (
+                                <ShieldCheck size={14} className="text-primary" />
+                              )}
+                              {fetchingCreds[m.name] ? "جاري الجلب..." : "عرض بيانات الدخول"}
                             </button>
                           )}
 
