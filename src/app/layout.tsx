@@ -5,6 +5,9 @@ import { AuthProvider } from "@/lib/auth-context";
 export const metadata: Metadata = {
   title: "بادر - المنصة الوطنية للبلاغات",
   description: "بوابتكم الرقمية للمساهمة في تحسين الخدمات العمومية",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

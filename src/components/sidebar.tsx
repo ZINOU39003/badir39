@@ -81,14 +81,12 @@ export function Sidebar() {
   const NavContent = () => (
     <>
       {/* Logo */}
-      <div className="px-6 py-6 border-b border-border">
+      <div className="px-6 py-5 border-b border-border">
         <Link href="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <span className="text-white font-black text-lg">ب</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-black text-primary">بادر</h1>
-            <p className="text-xs text-muted-foreground">المنصة الوطنية</p>
+          <img src="/logo.png" alt="بادر" className="w-12 h-12 object-contain" />
+          <div className="leading-tight">
+            <h1 className="text-[1.3rem] font-black text-primary tracking-tight">بادر</h1>
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">المنصة الوطنية</p>
           </div>
         </Link>
       </div>

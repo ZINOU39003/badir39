@@ -46,8 +46,8 @@ export default function LoginPage() {
           <div className="absolute bottom-20 left-20 w-96 h-96 bg-white rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 text-center text-white px-12">
-          <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8">
-            <span className="text-4xl font-black">ب</span>
+          <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl p-4">
+            <img src="/logo.png" alt="بادر Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-3xl font-black mb-4">منصة بادر</h2>
           <p className="text-primary-100 leading-relaxed max-w-sm mx-auto">
@@ -62,8 +62,8 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mx-auto mb-3">
-              <span className="text-white text-2xl font-black">ب</span>
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-3">
+              <img src="/logo.png" alt="بادر Mobile Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-black text-primary">منصة بادر</h1>
           </div>
