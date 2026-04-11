@@ -37,10 +37,11 @@ export default function DashboardPage() {
       if (user.role === "admin") {
         items = await getAdminComplaints();
       } else if (user.role === "department") {
-        // Isolate data for depts by passing their daira/baladiya as filters
+        // Isolate data for depts by passing their daira/baladiya/organization as filters
         items = await getAdminComplaints({ 
           daira: user.daira, 
-          baladiya: user.baladiya 
+          baladiya: user.baladiya,
+          dept: user.organization
         });
       } else {
         items = await getMyComplaints(user.id);

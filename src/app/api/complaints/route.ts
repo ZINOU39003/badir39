@@ -7,6 +7,7 @@ export async function GET(req: Request) {
     const reporter_id = searchParams.get('reporter_id');
     const daira = searchParams.get('daira');
     const baladiya = searchParams.get('baladiya');
+    const dept = searchParams.get('dept');
 
     let query = 'SELECT * FROM complaints WHERE 1=1';
     let params: any[] = [];
@@ -24,6 +25,11 @@ export async function GET(req: Request) {
     if (baladiya) {
       query += ' AND municipality = ?';
       params.push(baladiya);
+    }
+
+    if (dept) {
+      query += ' AND assigned_dept = ?';
+      params.push(dept);
     }
 
     query += ' ORDER BY created_at DESC';

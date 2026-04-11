@@ -70,13 +70,14 @@ export async function getMyComplaints(userId: string): Promise<Complaint[]> {
   }
 }
 
-export async function getAdminComplaints(filters?: { daira?: string; baladiya?: string }): Promise<Complaint[]> {
+export async function getAdminComplaints(filters?: { daira?: string; baladiya?: string; dept?: string }): Promise<Complaint[]> {
   try {
     let url = `${API_BASE}/complaints`;
+    const params = new URLSearchParams();
     if (filters) {
-      const params = new URLSearchParams();
       if (filters.daira) params.append("daira", filters.daira);
       if (filters.baladiya) params.append("baladiya", filters.baladiya);
+      if (filters.dept) params.append("dept", filters.dept);
       url += `?${params.toString()}`;
     }
     const res = await fetch(url);
@@ -98,6 +99,8 @@ export async function createComplaint(payload: {
   reporter_id?: string;
   assigned_dept: string;
   media_urls?: string[];
+  district?: string;
+  municipality?: string;
 }): Promise<Complaint> {
   const id = generateId();
   const body = {
@@ -108,24 +111,27 @@ export async function createComplaint(payload: {
     lat: payload.lat,
     lng: payload.lng,
     category: payload.category,
-    reporter_id: Number(payload.reporter_id || 0),
+    reporter_id: payload.reporter_id || "0",
     assigned_dept: payload.assigned_dept,
     media_urls: payload.media_urls || [],
+    district: payload.district,
+    municipality: payload.municipality
   };
 
-  try {
-    const res = await fetch(`${API_BASE}/complaints`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error("failed");
-  } catch {
-    // fallback - still return the created complaint locally
+  const res = await fetch(`${API_BASE}/complaints`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || "فشل إرسال البلاغ");
   }
 
   return {
     ...body,
+    reporter_id: Number(body.reporter_id),
     status: "submitted",
     created_at: new Date().toISOString(),
     messages: [],
