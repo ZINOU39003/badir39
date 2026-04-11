@@ -157,9 +157,15 @@ export default function EmergencyPage() {
       } as any);
 
       setSuccess(true);
-    } catch (err) {
-      console.error(err);
-      alert("فشل إرسال البلاغ، يرجى المحاولة مرة أخرى أو الاتصال مباشرة بالرقم المعروض.");
+    } catch (err: any) {
+      console.error("EMERGENCY_SUBMIT_FATAL:", err);
+      const isSizeError = err.message?.includes("too long") || err.message?.includes("large");
+      
+      alert(
+        isSizeError 
+          ? "حجم الصورة كبير جداً، يرجى محاولة التقاط صورة أخرى أو تحديث سعة النظام."
+          : "فشل إرسال البلاغ. قد يحتاج النظام لتحديث السعة (يرجى زيارة رابط الترقية المرسل لك) أو الاتصال مباشرة بالرقم المعروض."
+      );
     } finally {
       setSending(false);
     }
