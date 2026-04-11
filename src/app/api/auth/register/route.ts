@@ -20,12 +20,27 @@ export async function POST(req: Request) {
     }
 
     // Insert user
-    const [result]: any = await pool.execute(
-      `INSERT INTO users (full_name, phone, password, role, organization, username, email) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [full_name, phone, password, role, organization || null, username || null, email || null]
-    );
-
-    const userId = result.insertId;
+    let userId: number;
+    try {
+      const [result]: any = await pool.execute(
+        `INSERT INTO users (full_name, phone, password, role, organization, username, email) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [full_name, phone, password, role, organization || null, username || null, email || null]
+      );
+      userId = result.insertId;
+    } catch (insertError: any) {
+      console.error("Database Registration Error:", insertError);
+      if (insertError.code === 'ER_DUP_ENTRY') {
+        let message = "البيانات المدخلة مسجلة مسبقاً";
+        if (insertError.sqlMessage && insertError.sqlMessage.includes('phone')) message = "رقم الهاتف مسجل مسبقاً";
+        if (insertError.sqlMessage && insertError.sqlMessage.includes('email')) message = "البريد الإلكتروني مسجل مسبقاً";
+        if (insertError.sqlMessage && insertError.sqlMessage.includes('username')) message = "اسم المستخدم مسجل مسبقاً";
+        return NextResponse.json({ success: false, message }, { status: 400 });
+      }
+      return NextResponse.json({ 
+        success: false, 
+        message: "فشل في حفظ البيانات في قاعدة البيانات الرئيسي. تأكد من إعدادات Vercel." 
+      }, { status: 500 });
+    }
 
     const token = jwt.sign(
       { id: userId, phone, role, full_name },
@@ -45,14 +60,7 @@ export async function POST(req: Request) {
       }
     });
   } catch (error: any) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      let message = "البيانات المدخلة مسجلة مسبقاً";
-      if (error.sqlMessage && error.sqlMessage.includes('phone')) message = "رقم الهاتف مسجل مسبقاً";
-      if (error.sqlMessage && error.sqlMessage.includes('email')) message = "البريد الإلكتروني مسجل مسبقاً";
-      if (error.sqlMessage && error.sqlMessage.includes('username')) message = "اسم المستخدم مسجل مسبقاً";
-      
-      return NextResponse.json({ success: false, message }, { status: 400 });
-    }
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("Auth Register System Error:", error);
+    return NextResponse.json({ success: false, message: "حدث خطأ غير متوقع في نظام التسجيل" }, { status: 500 });
   }
 }

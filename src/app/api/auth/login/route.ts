@@ -12,10 +12,19 @@ export async function POST(req: Request) {
     const identifier = phone || username;
 
     // Search for user by phone OR username
-    const query = 'SELECT * FROM users WHERE (phone = ? OR username = ?) AND password = ?';
-    const params = [identifier, identifier, password];
-
-    const [rows]: any = await pool.execute(query, params);
+    let rows: any[] = [];
+    try {
+      const query = 'SELECT * FROM users WHERE (phone = ? OR username = ?) AND password = ?';
+      const params = [identifier, identifier, password];
+      const [result]: any = await pool.execute(query, params);
+      rows = result;
+    } catch (dbError: any) {
+      console.error("Database Login Error:", dbError);
+      return NextResponse.json({ 
+        success: false, 
+        message: "خطأ في الاتصال بقاعدة البيانات. يرجى مراجعة إعدادات السيرفر." 
+      }, { status: 500 });
+    }
 
     if (rows.length === 0) {
       return NextResponse.json({ success: false, message: "بيانات الدخول غير صحيحة" }, { status: 401 });
@@ -43,6 +52,7 @@ export async function POST(req: Request) {
       }
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("Auth Login System Error:", error);
+    return NextResponse.json({ success: false, message: "حدث خطأ غير متوقع في النظام" }, { status: 500 });
   }
 }
