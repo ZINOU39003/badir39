@@ -4,7 +4,7 @@ import pool from '@/lib/db';
 export async function GET() {
   try {
     const [rows]: any = await pool.execute(
-      "SELECT id, full_name, organization, logo_uri, cover_uri FROM users WHERE role = 'department' ORDER BY full_name ASC"
+      "SELECT id, full_name, organization, logo_uri, cover_uri, baladiya FROM users WHERE role = 'department' ORDER BY full_name ASC"
     );
     return NextResponse.json({ success: true, data: { items: rows } });
   } catch (error: any) {
