@@ -145,6 +145,42 @@ export default function ReportPage() {
     });
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7)); // Compress to 70% quality
+        };
+      };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim() || !selectedBaladiya || !assignedDept) {
@@ -156,21 +192,15 @@ export default function ReportPage() {
     setError("");
 
     try {
-      // Convert images to Base64 for storage
-      const mediaUrls = await Promise.all(
-        images.map(img => new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(img.file);
-        }))
-      );
+      // Process and compress images
+      const mediaUrls = await Promise.all(images.map(img => compressImage(img.file)));
 
       await createComplaint({
         title: title.trim(),
         description: description.trim(),
         category: type === "complaint" ? "بلاغ" : "اقتراح",
         location_text: locationText.trim() || selectedBaladiya,
-        lat: coords?.lat || 33.36, // Fallback to El Oued center
+        lat: coords?.lat || 33.36, 
         lng: coords?.lng || 6.85,
         reporter_id: user?.id,
         assigned_dept: assignedDept,
@@ -181,8 +211,8 @@ export default function ReportPage() {
 
       setSuccess(true);
       setTimeout(() => router.push("/dashboard/tracking"), 2000);
-    } catch {
-      setError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.");
+    } catch (err: any) {
+      setError(err.message || "حدث خطأ أثناء إرسال الطلب. قد يكون حجم الصور كبيراً جداً.");
     } finally {
       setSending(false);
     }
