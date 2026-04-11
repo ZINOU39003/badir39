@@ -68,7 +68,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, message: "Complaint created successfully" });
   } catch (error: any) {
-    console.error("COMPLAINT_API_ERROR:", error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("CRITICAL_COMPLAINT_FAILURE:", error);
+    return NextResponse.json({ 
+      success: false, 
+      message: `فشل الإرسال: ${error.message}` 
+    }, { status: 500 });
   }
 }
