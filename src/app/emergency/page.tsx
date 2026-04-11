@@ -16,20 +16,29 @@ import {
 import { getNearestUnit, CivilProtectionUnit } from "@/lib/civil-protection-data";
 import { cn } from "@/lib/utils";
 import { createComplaint } from "@/lib/api";
+import { WILAYA_STRUCTURE } from "@/lib/administrative-data";
+import { useAuth } from "@/lib/auth-context";
 
 export default function EmergencyPage() {
+  const { user } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [locationText, setLocationText] = useState("جاري تحديد موقعك...");
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
   const [municipality, setMunicipality] = useState("");
+  const [district, setDistrict] = useState("");
+  const [phone, setPhone] = useState("");
   const [image, setImage] = useState<{file: File, preview: string} | null>(null);
   const [description, setDescription] = useState("");
   const [isLocating, setIsLocating] = useState(false);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [nearestUnit, setNearestUnit] = useState<CivilProtectionUnit | null>(null);
+
+  useEffect(() => {
+    if (user?.phone) setPhone(user.phone);
+  }, [user]);
 
   useEffect(() => {
     detectLocation();
@@ -50,6 +59,16 @@ export default function EmergencyPage() {
         setMunicipality(city);
         setLocationText(data.display_name);
         
+        // Find District (Daira)
+        const matchedDistrict = WILAYA_STRUCTURE.find(d => 
+          d.municipalities.some(m => {
+            const mNameClean = m.name.replace("بلدية", "").trim();
+            const cityNameClean = city.trim();
+            return cityNameClean.includes(mNameClean) || mNameClean.includes(cityNameClean);
+          })
+        );
+        if (matchedDistrict) setDistrict(matchedDistrict.name);
+
         // Find nearest unit
         const unit = getNearestUnit(city);
         if (unit) setNearestUnit(unit);
@@ -125,14 +144,15 @@ export default function EmergencyPage() {
       
       await createComplaint({
         title: "بلاغ استغاثة مستعجل",
-        description: description.trim() || "بلاغ طوارئ مرسل عبر نظام الاستغاثة السريع.",
+        description: `رقم الهاتف: ${phone}\n\n${description.trim() || "بلاغ طوارئ مرسل عبر نظام الاستغاثة السريع."}`,
         category: "طوارئ",
         location_text: locationText || "موقع استغاثة",
         lat: coords.lat,
         lng: coords.lng,
         assigned_dept: "الحماية المدنية",
         media_urls: [compressed],
-        municipality: municipality || "غير محدد"
+        municipality: municipality || "غير محدد",
+        district: district || "غير محدد"
       } as any);
 
       setSuccess(true);
@@ -239,14 +259,29 @@ export default function EmergencyPage() {
             )}
           </div>
 
-          {/* Location Bar */}
           <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-red-600 shadow-sm shrink-0">
               {isLocating ? <Loader2 size={24} className="animate-spin" /> : <MapPin size={24} />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black text-slate-400 uppercase">موقعك الحالي</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase">موقعك الحالي ({district || "جاري البحث..."})</p>
               <p className="text-sm font-bold text-slate-700 truncate">{locationText}</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-black text-slate-700 mb-2 px-1">رقم الهاتف للتواصل *</label>
+            <div className="relative">
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="0x XX XX XX XX"
+                className="w-full h-14 pr-12 pl-4 rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-sm focus:border-red-500 transition-all shadow-inner"
+                dir="ltr"
+                required
+              />
+              <Phone size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
             </div>
           </div>
 
