@@ -5,7 +5,7 @@ import { useEffect } from "react";
 export function SWRegistration() {
   useEffect(() => {
     if ("serviceWorker" in navigator && window.location.protocol === "https:") {
-      window.addEventListener("load", () => {
+      const registerSW = () => {
         navigator.serviceWorker
           .register("/sw.js")
           .then((registration) => {
@@ -14,7 +14,14 @@ export function SWRegistration() {
           .catch((error) => {
             console.error("PWA Service Worker registration failed:", error);
           });
-      });
+      };
+
+      if (document.readyState === "complete") {
+        registerSW();
+      } else {
+        window.addEventListener("load", registerSW);
+        return () => window.removeEventListener("load", registerSW);
+      }
     }
   }, []);
 
