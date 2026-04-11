@@ -10,3 +10,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const { full_name, organization } = await req.json();
+
+    await pool.execute(
+      "UPDATE users SET full_name = ?, organization = ? WHERE id = ? AND role = 'department'",
+      [full_name, organization, id]
+    );
+
+    return NextResponse.json({ success: true, message: "تم تحديث بيانات المصلحة بنجاح" });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
