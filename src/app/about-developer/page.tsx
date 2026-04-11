@@ -17,7 +17,7 @@ export default function DeveloperPage() {
   const router = useRouter();
 
   const developerInfo = {
-    name: "زهير عيه",
+    name: "المهندس زهير عية (Zouhir Aya)",
     title: "مطور برمجيات ومهندس حلول رقمية",
     role: "مطور منصة بادر (بوابة الجزائر الرقمية)",
     address: "الدبيلة، ولاية الوادي، الجزائر",
