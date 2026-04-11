@@ -1,0 +1,24 @@
+{
+  "name": "بادر - المنصة الوطنية",
+  "short_name": "بادر",
+  "description": "بوابتكم الرقمية للمساهمة في تحسين الخدمات العمومية",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#006241",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
