@@ -159,13 +159,8 @@ export default function EmergencyPage() {
       setSuccess(true);
     } catch (err: any) {
       console.error("EMERGENCY_SUBMIT_FATAL:", err);
-      const isSizeError = err.message?.includes("too long") || err.message?.includes("large");
-      
-      alert(
-        isSizeError 
-          ? "حجم الصورة كبير جداً، يرجى محاولة التقاط صورة أخرى أو تحديث سعة النظام."
-          : "فشل إرسال البلاغ. قد يحتاج النظام لتحديث السعة (يرجى زيارة رابط الترقية المرسل لك) أو الاتصال مباشرة بالرقم المعروض."
-      );
+      // Show full error message for final debugging
+      alert(`عذراً، حدث خطأ فني: ${err.message || "خطأ مجهول"}. يرجى تصوير هذه الرسالة للمطور.`);
     } finally {
       setSending(false);
     }
