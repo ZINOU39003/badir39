@@ -19,7 +19,8 @@ import {
   FileText, 
   RefreshCw,
   ShieldCheck,
-  Plus
+  Plus,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ const STANDARD_SECTORS = [
   { id: "health", name: "الصحة والسكان" },
   { id: "education", name: "التربية والتعليم" },
   { id: "lighting", name: "الإنارة العمومية" },
+  { id: "protection", name: "الحماية المدنية" },
 ];
 
 const sectorIcons: Record<string, any> = {
@@ -40,6 +42,7 @@ const sectorIcons: Record<string, any> = {
   roads: Building2,
   health: Building2,
   education: Building2,
+  protection: ShieldAlert,
 };
 
 export default function MunicipalityManagerPage() {

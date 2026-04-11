@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getNearestUnit, CivilProtectionUnit } from "@/lib/civil-protection-data";
 import { cn } from "@/lib/utils";
+import { createComplaint } from "@/lib/api";
 
 export default function EmergencyPage() {
   const router = useRouter();
@@ -73,15 +74,70 @@ export default function EmergencyPage() {
     }
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7)); 
+        };
+      };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!image || !coords) return;
+    
     setSending(true);
     
-    // Simulate emergency transmission
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const compressed = await compressImage(image.file);
+      
+      await createComplaint({
+        title: "بلاغ استغاثة مستعجل",
+        description: description.trim() || "بلاغ طوارئ مرسل عبر نظام الاستغاثة السريع.",
+        category: "طوارئ",
+        location_text: locationText || "موقع استغاثة",
+        lat: coords.lat,
+        lng: coords.lng,
+        assigned_dept: "الحماية المدنية",
+        media_urls: [compressed],
+        municipality: municipality || "غير محدد"
+      } as any);
+
       setSuccess(true);
-    }, 2000);
+    } catch (err) {
+      console.error(err);
+      alert("فشل إرسال البلاغ، يرجى المحاولة مرة أخرى أو الاتصال مباشرة بالرقم المعروض.");
+    } finally {
+      setSending(false);
+    }
   };
 
   if (success && nearestUnit) {
