@@ -11,7 +11,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, message: "Missing baladiya name" }, { status: 400 });
     }
 
-    let query = "SELECT username, password, baladiya, organization FROM users WHERE baladiya = ? ";
+    let query = "SELECT username, password, baladiya, organization, phone FROM users WHERE baladiya = ? ";
     let params: any[] = [baladiya];
 
     if (organization) {

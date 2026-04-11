@@ -28,10 +28,10 @@ export async function GET(req: Request) {
     }
 
     if (dept) {
-      // Changed from EXACT match (=) to Partial match (LIKE) 
-      // to ensure "الحماية المدنية" complaints show up for "مصلحة الحماية المدنية - الدبيلة"
-      query += ' AND assigned_dept LIKE ?'; 
-      params.push(`%${dept}%`);
+      // BIdirectional Partial Match System:
+      // Enables "الحماية المدنية" to match "مصلحة الحماية المدنية - الدبيلة" and vice versa.
+      query += ' AND (? LIKE CONCAT("%", assigned_dept, "%") OR assigned_dept LIKE ?)'; 
+      params.push(dept, `%${dept}%`);
     }
 
     query += ' ORDER BY created_at DESC';
